@@ -53,7 +53,7 @@ export default function AcademySection() {
         pointerEvents: 'none',
       }} />
 
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 48px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)' }}>
         {/* Section header */}
         <FadeIn>
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>

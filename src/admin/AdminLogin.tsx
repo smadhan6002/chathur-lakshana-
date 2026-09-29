@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ADMIN_CREDENTIALS } from './config';
 
 export default function AdminLogin({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
@@ -8,20 +7,18 @@ export default function AdminLogin({ onLogin }: { onLogin: () => void }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate subtle network delay for premium feel
-    setTimeout(() => {
-      if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-        onLogin();
-      } else {
-        setError('Invalid email or password.');
-        setIsLoading(false);
-      }
-    }, 800);
+    // Hardcoded simple admin login
+    if (email.trim() === 'admin@admin.com' && password === 'admin123') {
+      onLogin();
+    } else {
+      setError('Invalid email or password.');
+      setIsLoading(false);
+    }
   };
 
   const inputStyle: React.CSSProperties = {

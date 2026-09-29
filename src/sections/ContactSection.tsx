@@ -102,7 +102,7 @@ Thank you.`
         position: 'relative',
       }}
     >
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 48px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)' }}>
         {/* Header */}
         <FadeIn>
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
@@ -140,22 +140,21 @@ Thank you.`
           {/* Left: image + studio info */}
           <FadeIn delay={0.1}>
             <div>
-              <div style={{ position: 'relative', overflow: 'hidden', marginBottom: '32px', border: '1px solid var(--gold)', padding: '12px' }}>
-                <img
-                  src="src/assets/raiveeson_7a2e458cf19d45658d947283309892cd.jpg"
-                  alt="Bharatanatyam dancer"
-                  style={{
-                    width: '100%', aspectRatio: '4/3',
-                    objectFit: 'cover', display: 'block',
-                    filter: 'contrast(1.05)',
-                  }}
-                />
-                {/* Overlay info */}
-                <div style={{
-                  position: 'absolute', bottom: '12px', left: '12px', right: '12px',
-                  padding: '60px 28px 28px',
-                  background: 'linear-gradient(to top, rgba(36, 16, 45, 0.95), rgba(36, 16, 45, 0.6), transparent)',
-                }}>
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{ overflow: 'hidden', border: '1px solid var(--gold)', padding: '12px', marginBottom: '24px' }}>
+                  <img
+                    src="/src/assets/raiveeson_7a2e458cf19d45658d947283309892cd.jpg"
+                    alt="Bharatanatyam dancer"
+                    style={{
+                      width: '100%', aspectRatio: '4/3',
+                      objectFit: 'cover', display: 'block',
+                      filter: 'contrast(1.05)',
+                    }}
+                  />
+                </div>
+                
+                {/* Info below image */}
+                <div style={{ padding: '0 8px' }}>
                   <div style={{
                     fontFamily: "var(--font-body)",
                     fontSize: '12px', letterSpacing: '0.2em', fontWeight: 600,
@@ -163,10 +162,11 @@ Thank you.`
                   }}>STUDIO</div>
                   <p style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: '16px', color: 'var(--cream)', lineHeight: 1.6, fontWeight: 400,
+                    fontSize: '16px', color: 'var(--deep-purple)', lineHeight: 1.6, fontWeight: 500,
                   }}>
                     Chathur Lakshana Academy of Fine Arts,<br/>Mylapore, Chennai 600004
                   </p>
+                  
                   <div style={{
                     fontFamily: "var(--font-body)",
                     fontSize: '12px', letterSpacing: '0.2em', fontWeight: 600,
@@ -175,7 +175,7 @@ Thank you.`
                   }}>CLASS HOURS</div>
                   <p style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: '16px', color: 'var(--cream)', fontWeight: 400,
+                    fontSize: '16px', color: 'var(--deep-purple)', fontWeight: 500,
                   }}>
                     Tue–Thu 5–8 pm · Sat &amp; Sun 8 am–1 pm
                   </p>
@@ -183,7 +183,7 @@ Thank you.`
               </div>
 
               {/* Contact boxes */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="contact-boxes-grid" style={{ display: 'grid', gap: '16px' }}>
                 {[
                   { label: 'PHONE', value: '+91 98400 00000' },
                   { label: 'EMAIL', value: 'info@chathurlakshana.in' },
@@ -201,6 +201,7 @@ Thank you.`
                     <div style={{
                       fontFamily: "var(--font-body)",
                       fontSize: '15px', color: 'var(--deep-purple)', fontWeight: 500,
+                      wordBreak: 'break-word',
                     }}>{c.value}</div>
                   </div>
                 ))}
@@ -213,7 +214,7 @@ Thank you.`
             <div style={{
               backgroundColor: 'var(--cream)',
               border: '1px solid var(--color-border)',
-              padding: '56px 48px',
+              padding: 'clamp(24px, 5vw, 56px) clamp(20px, 4vw, 48px)',
               boxShadow: '0 10px 40px rgba(50, 20, 63, 0.05)',
             }}>
               <div style={{
@@ -331,8 +332,12 @@ Thank you.`
       </div>
 
       <style>{`
+        .contact-boxes-grid { grid-template-columns: 1fr 1fr; }
         @media (max-width: 900px) {
           .contact-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 600px) {
+          .contact-boxes-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </section>

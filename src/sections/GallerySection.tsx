@@ -1,6 +1,7 @@
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
-import { galleryStorage } from '../utils/galleryStorage'
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { fetchActiveMedia } from '../lib/mediaService'
+import type { MediaItem } from '../lib/mediaService'
 import { GALLERY_CATEGORIES } from '../admin/config'
 
 // Import real local assets
@@ -15,60 +16,29 @@ import img8 from '../assets/master_sriram_4256661ffaaa431f9276e74d5f9986c6.jpg'
 import img9 from '../assets/noodlesandoldbooks_61691627fc434ad498e1d5e67e919866.jpg'
 import img10 from '../assets/raiveeson_23d2423e8e7644409ddc582d0c472025.jpg'
 
-const staticPerformances = [
-  {
-    id: 'static_1', category: 'PERFORMANCES',
-    title: 'Margazhi Recital', description: 'Graceful abhinaya capturing the essence of devotion.',
-    imageData: img1, createdAt: 1000,
-  },
-  {
-    id: 'static_2', category: 'CLASSROOM',
-    title: 'Adavu Practice', description: 'Perfecting footwork with precision and rhythm.',
-    imageData: img2, createdAt: 999,
-  },
-  {
-    id: 'static_3', category: 'PERFORMANCES',
-    title: 'Temple Offering', description: 'A devotional offering to the divine.',
-    imageData: img3, createdAt: 998,
-  },
-  {
-    id: 'static_4', category: 'ARANGETRAMS',
-    title: 'Arangetram Moments', description: 'The grand debut performance.',
-    imageData: img4, createdAt: 997,
-  },
-  {
-    id: 'static_5', category: 'PERFORMANCES',
-    title: 'Varnam Excerpt', description: 'Complex rhythmic patterns and expressive storytelling.',
-    imageData: img5, createdAt: 996,
-  },
-  {
-    id: 'static_6', category: 'FESTIVALS',
-    title: 'Group Choreography', description: 'Synchronized movements in thematic productions.',
-    imageData: img6, createdAt: 995,
-  },
-  {
-    id: 'static_7', category: 'PERFORMANCES',
-    title: 'Tillana Joy', description: 'The vibrant and rhythmic conclusion.',
-    imageData: img7, createdAt: 994,
-  },
-  {
-    id: 'static_8', category: 'CLASSROOM',
-    title: 'Guru Shishya Parampara', description: 'Imparting traditional knowledge.',
-    imageData: img8, createdAt: 993,
-  },
-  {
-    id: 'static_9', category: 'FESTIVALS',
-    title: 'Cultural Showcase', description: 'Celebrating our rich heritage on stage.',
-    imageData: img9, createdAt: 992,
-  },
-  {
-    id: 'static_10', category: 'PERFORMANCES',
-    title: 'Purana Manjari', description: 'Thematic production staging ancient epics.',
-    imageData: img10, createdAt: 991,
-  },
+// Unified gallery item shape for display
+interface GalleryDisplayItem {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  createdAt: number;
+}
+
+// Static fallback images — always displayed
+const staticPerformances: GalleryDisplayItem[] = [
+  { id: 'static_1', category: 'PERFORMANCES', title: 'Margazhi Recital', description: 'Graceful abhinaya capturing the essence of devotion.', imageUrl: img1, createdAt: 1000 },
+  { id: 'static_2', category: 'CLASSROOM', title: 'Adavu Practice', description: 'Perfecting footwork with precision and rhythm.', imageUrl: img2, createdAt: 999 },
+  { id: 'static_3', category: 'PERFORMANCES', title: 'Temple Offering', description: 'A devotional offering to the divine.', imageUrl: img3, createdAt: 998 },
+  { id: 'static_4', category: 'ARANGETRAMS', title: 'Arangetram Moments', description: 'The grand debut performance.', imageUrl: img4, createdAt: 997 },
+  { id: 'static_5', category: 'PERFORMANCES', title: 'Varnam Excerpt', description: 'Complex rhythmic patterns and expressive storytelling.', imageUrl: img5, createdAt: 996 },
+  { id: 'static_6', category: 'FESTIVALS', title: 'Group Choreography', description: 'Synchronized movements in thematic productions.', imageUrl: img6, createdAt: 995 },
+  { id: 'static_7', category: 'PERFORMANCES', title: 'Tillana Joy', description: 'The vibrant and rhythmic conclusion.', imageUrl: img7, createdAt: 994 },
+  { id: 'static_8', category: 'CLASSROOM', title: 'Guru Shishya Parampara', description: 'Imparting traditional knowledge.', imageUrl: img8, createdAt: 993 },
+  { id: 'static_9', category: 'FESTIVALS', title: 'Cultural Showcase', description: 'Celebrating our rich heritage on stage.', imageUrl: img9, createdAt: 992 },
+  { id: 'static_10', category: 'PERFORMANCES', title: 'Purana Manjari', description: 'Thematic production staging ancient epics.', imageUrl: img10, createdAt: 991 },
 ]
-
-
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -80,70 +50,85 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   )
 }
 
+// Fallback image component — shows placeholder when image URL fails
+function GalleryImage({ src, alt }: { src: string; alt: string }) {
+  const [errored, setErrored] = useState(false);
+  return errored ? (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--deep-purple)', color: 'var(--champagne)', fontSize: '13px', fontFamily: 'var(--font-body)', textAlign: 'center', padding: '8px' }}>
+      Image unavailable
+    </div>
+  ) : (
+    <img src={src} alt={alt} loading="lazy" onError={() => setErrored(true)} />
+  )
+}
+
 export default function GallerySection() {
   const [activeCategory, setActiveCategory] = useState('ALL')
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<GalleryDisplayItem[]>([])
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [dbLoaded, setDbLoaded] = useState(false)
+
+  const loadGalleryItems = useCallback(async () => {
+    try {
+      const dbItems: MediaItem[] = await fetchActiveMedia('image')
+      const mapped: GalleryDisplayItem[] = dbItems.map(item => ({
+        id: item.id,
+        category: item.category || 'PERFORMANCES',
+        title: item.title,
+        description: item.description || '',
+        imageUrl: item.media_url,
+        createdAt: new Date(item.created_at).getTime(),
+      }))
+      // DB items first, then static images
+      setItems([...mapped, ...staticPerformances])
+    } catch (err) {
+      console.error('Failed to load gallery items from Supabase:', err)
+      setItems(staticPerformances)
+    } finally {
+      setDbLoaded(true)
+    }
+  }, [])
 
   useEffect(() => {
-    loadGalleryItems();
-    const handleFocus = () => loadGalleryItems();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+    loadGalleryItems()
+    // Reload when window regains focus (e.g., admin just added an image)
+    const handleFocus = () => loadGalleryItems()
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [loadGalleryItems])
 
-  const loadGalleryItems = async () => {
-    try {
-      const dbItems = await galleryStorage.getGalleryItems();
-      const sortedDbItems = dbItems.sort((a, b) => b.createdAt - a.createdAt);
-      setItems([...sortedDbItems, ...staticPerformances]);
-    } catch (err) {
-      console.error('Failed to load gallery items from IndexedDB', err);
-      setItems(staticPerformances);
-    }
-  }
+  const filteredItems = activeCategory === 'ALL'
+    ? items
+    : items.filter(item => item.category === activeCategory)
 
-  const filteredItems = activeCategory === 'ALL' 
-    ? items 
-    : items.filter(item => item.category === activeCategory);
-
-  const openLightbox = (index: number) => {
-    setCurrentImageIndex(index);
-    setLightboxOpen(true);
-  }
-
-  const closeLightbox = () => setLightboxOpen(false);
+  const openLightbox = (index: number) => { setCurrentImageIndex(index); setLightboxOpen(true) }
+  const closeLightbox = () => setLightboxOpen(false)
 
   const nextImage = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % filteredItems.length);
+    if (e) e.stopPropagation()
+    setCurrentImageIndex((prev) => (prev + 1) % filteredItems.length)
   }
-
   const prevImage = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
+    if (e) e.stopPropagation()
+    setCurrentImageIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length)
   }
 
-  // Handle Keyboard for Lightbox
   useEffect(() => {
-    if (!lightboxOpen) return;
-    
+    if (!lightboxOpen) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowRight') nextImage();
-      if (e.key === 'ArrowLeft') prevImage();
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    // Prevent scrolling when lightbox is open
-    document.body.style.overflow = 'hidden';
-    
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowRight') nextImage()
+      if (e.key === 'ArrowLeft') prevImage()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'auto';
-    };
-  }, [lightboxOpen, filteredItems.length]);
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'auto'
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, filteredItems.length])
 
   return (
     <section
@@ -155,7 +140,7 @@ export default function GallerySection() {
         overflow: 'hidden',
       }}
     >
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 48px', marginBottom: '60px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)', marginBottom: '60px' }}>
         <FadeIn>
           <div style={{ textAlign: 'center' }}>
             <div style={{
@@ -184,7 +169,7 @@ export default function GallerySection() {
 
             {/* Category Filters */}
             <div style={{
-              display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap',
+              display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap',
               marginBottom: '40px'
             }}>
               {GALLERY_CATEGORIES.map(cat => (
@@ -195,13 +180,14 @@ export default function GallerySection() {
                     background: 'transparent',
                     border: 'none',
                     fontFamily: "var(--font-body)",
-                    fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em',
+                    fontSize: 'clamp(11px, 2vw, 13px)', fontWeight: 600, letterSpacing: '0.15em',
                     color: activeCategory === cat ? 'var(--deep-purple)' : 'var(--luxury-purple)',
                     textTransform: 'uppercase',
                     cursor: 'pointer',
-                    padding: '8px 16px',
+                    padding: '8px 12px',
                     borderBottom: activeCategory === cat ? '2px solid var(--gold)' : '2px solid transparent',
                     transition: 'all 0.3s ease',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {cat}
@@ -211,40 +197,41 @@ export default function GallerySection() {
           </div>
         </FadeIn>
 
+        {/* Loading state */}
+        {!dbLoaded && (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--luxury-purple)', fontFamily: "var(--font-body)" }}>
+            Loading gallery...
+          </div>
+        )}
+
         {/* Masonry Editorial Grid */}
-        {filteredItems.length === 0 ? (
+        {filteredItems.length === 0 && dbLoaded ? (
           <div style={{ width: '100%', textAlign: 'center', padding: '100px 0', color: 'var(--luxury-purple)', fontFamily: "var(--font-body)" }}>
             No images found in this category.
           </div>
         ) : (
           <div className="gallery-masonry">
-            {filteredItems.map((item, i) => {
-              return (
-                <motion.div
-                  key={item.id}
-                  className="gallery-item"
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.6, delay: (i % 5) * 0.1 }}
-                  onClick={() => openLightbox(i)}
-                >
-                  <div className="gallery-image-wrapper">
-                    <img
-                      src={item.imageData}
-                      alt={item.title}
-                      loading="lazy"
-                    />
-                    <div className="gallery-overlay">
-                      <div className="gallery-content">
-                        <span className="gallery-category">{item.category}</span>
-                        <h3 className="gallery-title">{item.title}</h3>
-                      </div>
+            {filteredItems.map((item, i) => (
+              <motion.div
+                key={item.id}
+                className="gallery-item"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.6, delay: (i % 5) * 0.1 }}
+                onClick={() => openLightbox(i)}
+              >
+                <div className="gallery-image-wrapper">
+                  <GalleryImage src={item.imageUrl} alt={item.title} />
+                  <div className="gallery-overlay">
+                    <div className="gallery-content">
+                      <span className="gallery-category">{item.category}</span>
+                      <h3 className="gallery-title">{item.title}</h3>
                     </div>
                   </div>
-                </motion.div>
-              )
-            })}
+                </div>
+              </motion.div>
+            ))}
           </div>
         )}
       </div>
@@ -269,11 +256,11 @@ export default function GallerySection() {
             {/* Top Bar */}
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0,
-              padding: '24px 48px', display: 'flex', justifyContent: 'flex-end',
+              padding: '16px 24px', display: 'flex', justifyContent: 'flex-end',
               zIndex: 10000,
             }}>
-              <button 
-                onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+              <button
+                onClick={(e) => { e.stopPropagation(); closeLightbox() }}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
                   color: 'var(--champagne)', fontSize: '32px', lineHeight: 1,
@@ -286,80 +273,50 @@ export default function GallerySection() {
               </button>
             </div>
 
-            {/* Navigation Buttons */}
-            <button
-              onClick={prevImage}
-              className="lightbox-nav left"
-              style={{
-                position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)',
-                background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
-                width: '60px', height: '60px', cursor: 'pointer', zIndex: 10000,
-                color: 'var(--champagne)', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.3s ease, color 0.3s ease'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'var(--gold)';
-                e.currentTarget.style.color = 'var(--deep-purple)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(50, 20, 63, 0.5)';
-                e.currentTarget.style.color = 'var(--champagne)';
-              }}
-            >
+            {/* Navigation */}
+            <button onClick={prevImage} className="lightbox-nav left" style={{
+              position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
+              background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
+              width: '50px', height: '50px', cursor: 'pointer', zIndex: 10000,
+              color: 'var(--champagne)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.3s ease, color 0.3s ease'
+            }}>
               ←
             </button>
-            <button
-              onClick={nextImage}
-              className="lightbox-nav right"
-              style={{
-                position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)',
-                background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
-                width: '60px', height: '60px', cursor: 'pointer', zIndex: 10000,
-                color: 'var(--champagne)', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.3s ease, color 0.3s ease'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'var(--gold)';
-                e.currentTarget.style.color = 'var(--deep-purple)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(50, 20, 63, 0.5)';
-                e.currentTarget.style.color = 'var(--champagne)';
-              }}
-            >
+            <button onClick={nextImage} className="lightbox-nav right" style={{
+              position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+              background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
+              width: '50px', height: '50px', cursor: 'pointer', zIndex: 10000,
+              color: 'var(--champagne)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.3s ease, color 0.3s ease'
+            }}>
               →
             </button>
 
             {/* Main Image */}
-            <motion.div 
+            <motion.div
               key={currentImageIndex}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
               style={{
-                width: '100%', height: '80%', padding: '0 100px',
+                width: '100%', height: '75vh', padding: '0 70px',
                 display: 'flex', justifyContent: 'center', alignItems: 'center',
               }}
-              onClick={(e) => e.stopPropagation()} // Prevent close when clicking image
+              onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={filteredItems[currentImageIndex].imageData}
+                src={filteredItems[currentImageIndex].imageUrl}
                 alt={filteredItems[currentImageIndex].title}
-                style={{
-                  maxWidth: '100%', maxHeight: '100%',
-                  objectFit: 'contain',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-                }}
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
               />
             </motion.div>
 
             {/* Image Metadata */}
             <div style={{
-              position: 'absolute', bottom: '40px', left: 0, right: 0,
+              position: 'absolute', bottom: '24px', left: 0, right: 0,
               textAlign: 'center', padding: '0 24px',
-            }}
-            onClick={(e) => e.stopPropagation()}
-            >
+            }} onClick={(e) => e.stopPropagation()}>
               <div style={{
                 fontFamily: "var(--font-body)",
                 fontSize: '12px', fontWeight: 600, letterSpacing: '0.2em',
@@ -369,7 +326,7 @@ export default function GallerySection() {
               </div>
               <h3 style={{
                 fontFamily: "var(--font-display)",
-                fontSize: '28px', fontWeight: 400,
+                fontSize: 'clamp(18px, 3vw, 28px)', fontWeight: 400,
                 color: 'var(--cream)', margin: 0,
               }}>
                 {filteredItems[currentImageIndex].title}
@@ -382,13 +339,13 @@ export default function GallerySection() {
       <style>{`
         .gallery-masonry {
           column-count: 3;
-          column-gap: 24px;
+          column-gap: 20px;
           width: 100%;
         }
 
         .gallery-item {
           break-inside: avoid;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           width: 100%;
           cursor: pointer;
           position: relative;
@@ -413,7 +370,6 @@ export default function GallerySection() {
           transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Hover Overlay */
         .gallery-overlay {
           position: absolute;
           inset: 0;
@@ -422,11 +378,10 @@ export default function GallerySection() {
           transition: opacity 0.4s ease;
           display: flex;
           align-items: flex-end;
-          padding: 32px;
+          padding: 24px;
           border: 1px solid transparent;
         }
 
-        /* Hover Details */
         .gallery-content {
           transform: translateY(20px);
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -445,56 +400,32 @@ export default function GallerySection() {
 
         .gallery-title {
           font-family: var(--font-display);
-          font-size: 28px;
+          font-size: clamp(18px, 3vw, 28px);
           color: var(--cream);
           font-weight: 400;
           margin: 0;
           line-height: 1.2;
         }
 
-        /* Hover Actions */
         .gallery-item:hover .gallery-image-wrapper {
           border-color: var(--gold);
           box-shadow: 0 12px 40px rgba(50, 20, 63, 0.15);
         }
+        .gallery-item:hover img { transform: scale(1.02); }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-item:hover .gallery-content { transform: translateY(0); }
 
-        .gallery-item:hover img {
-          transform: scale(1.02);
-        }
-
-        .gallery-item:hover .gallery-overlay {
-          opacity: 1;
-        }
-
-        .gallery-item:hover .gallery-content {
-          transform: translateY(0);
-        }
-
-        /* Responsive Breakpoints */
         @media (max-width: 1024px) {
-          .gallery-masonry {
-            column-count: 2;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .lightbox-nav {
-            width: 44px !important;
-            height: 44px !important;
-            font-size: 18px !important;
-          }
-          .lightbox-nav.left { left: 12px !important; }
-          .lightbox-nav.right { right: 12px !important; }
+          .gallery-masonry { column-count: 2; }
         }
 
         @media (max-width: 640px) {
           .gallery-masonry {
             column-count: 1;
-            column-gap: 16px;
+            column-gap: 12px;
           }
-          .gallery-item {
-            margin-bottom: 16px;
-          }
+          .gallery-item { margin-bottom: 12px; }
+          .lightbox-nav { width: 40px !important; height: 40px !important; font-size: 16px !important; }
         }
       `}</style>
     </section>

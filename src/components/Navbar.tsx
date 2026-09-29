@@ -46,10 +46,11 @@ export default function Navbar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 48px',
-        height: scrolled ? '72px' : '96px', // Compacts on scroll
+        padding: '0 clamp(16px, 4vw, 48px)',
+        height: scrolled ? '64px' : '88px',
         maxWidth: '100%',
         transition: 'height 0.4s ease',
+        boxSizing: 'border-box',
       }}>
         {/* Logo */}
         <a href="#" onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
@@ -86,7 +87,7 @@ export default function Navbar() {
         </a>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex" style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
           {navLinks.map(link => (
             <button
               key={link.label}
@@ -200,7 +201,11 @@ export default function Navbar() {
       <style>{`
         @media (max-width: 768px) {
           .mobile-menu-btn { display: flex !important; }
-          nav > div > div:not(.mobile-menu-btn) { display: none !important; }
+          .desktop-nav { display: none !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-menu-btn { display: none !important; }
+          .desktop-nav { display: flex !important; }
         }
       `}</style>
     </motion.nav>

@@ -1,13 +1,4 @@
-// Frontend-only admin authentication.
-// Credentials are visible in the client bundle.
-// For production security, replace this with server-side authentication.
-
-export const ADMIN_CREDENTIALS = {
-  // Change admin email and password here.
-  email: "admin@gmail.com",
-  password: "admin123"
-};
-
+// Gallery categories used in admin and gallery section
 export const GALLERY_CATEGORIES = [
   "ALL",
   "PERFORMANCES",
@@ -16,3 +7,8 @@ export const GALLERY_CATEGORIES = [
   "WORKSHOPS",
   "CLASSROOM"
 ];
+
+// NOTE: Admin credentials have been removed from this file.
+// Authentication is now handled by Supabase Auth.
+// Create your admin user in the Supabase Dashboard:
+// Authentication → Users → Add User

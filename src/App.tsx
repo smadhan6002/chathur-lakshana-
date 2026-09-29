@@ -3,7 +3,7 @@ import './index.css'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import HeroSection from './sections/HeroSection'
-import DanceSequenceSection from './sections/DanceSequenceSection'
+import VideoShowcaseSection from './sections/VideoShowcaseSection'
 import AcademySection from './sections/AcademySection'
 import TimelineSection from './sections/TimelineSection'
 import FounderSection from './sections/FounderSection'
@@ -61,7 +61,12 @@ export default function App() {
       setTimeout(() => navigate('/admin'), 0)
       return null
     }
-    return <AdminDashboard onLogout={handleLogout} />
+    return (
+      <>
+        <CustomCursor />
+        <AdminDashboard onLogout={handleLogout} />
+      </>
+    )
   }
 
   if (currentPath === '/admin') {
@@ -69,7 +74,12 @@ export default function App() {
       setTimeout(() => navigate('/admin/dashboard'), 0)
       return null
     }
-    return <AdminLogin onLogin={handleLogin} />
+    return (
+      <>
+        <CustomCursor />
+        <AdminLogin onLogin={handleLogin} />
+      </>
+    )
   }
 
   // Public SPA Route
@@ -87,7 +97,7 @@ export default function App() {
       <Navbar />
       <main>
         <HeroSection />
-        <DanceSequenceSection />
+        <VideoShowcaseSection />
         <AcademySection />
         <TimelineSection />
         <FounderSection />

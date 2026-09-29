@@ -2,9 +2,9 @@ export default function Footer() {
   return (
     <footer
       style={{
-        backgroundColor: 'var(--dark-plum)', // Deepest purple for footer
+        backgroundColor: 'var(--dark-plum)',
         borderTop: '1px solid rgba(214, 168, 79, 0.2)',
-        padding: '100px 48px 40px',
+        padding: 'clamp(60px, 8vw, 100px) clamp(16px, 4vw, 48px) 40px',
         position: 'relative',
         overflow: 'hidden',
       }}

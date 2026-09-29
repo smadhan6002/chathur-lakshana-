@@ -243,3 +243,81 @@ body {
   }
 }
 
+/* ─── Global Responsive Safety ─────────────────────────────── */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, video, iframe {
+  max-width: 100%;
+}
+
+/* Prevent long URLs/words from breaking layout */
+.admin-url-text {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* ─── Mobile Section Padding Utilities ──────────────────────── */
+@media (max-width: 480px) {
+  /* Ensure every section container respects viewport */
+  section > div, footer > div, header > div {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  /* Hero CTA buttons stack on very small screens */
+  .hero-cta-group {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* Timeline section fix */
+  .timeline-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Academy grid */
+  .academy-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+
+  /* Courses grid */
+  .secondary-courses-grid { grid-template-columns: 1fr !important; }
+  .highlights-wrapper {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .bullet-point { display: none !important; }
+
+  /* Contact grid */
+  .contact-grid { grid-template-columns: 1fr !important; }
+
+  /* Footer grid */
+  .footer-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+
+  /* Founder grid */
+  .founder-grid { grid-template-columns: 1fr !important; gap: 60px !important; }
+
+  /* Admin form responsive */
+  form[class*="admin"] { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 1024px) {
+  /* Courses secondary grid — 2 columns */
+  .secondary-courses-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Reels grid */
+  .reels-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ─── Touch Device Fixes ─────────────────────────────────────── */
+@media (hover: none) {
+  /* Ensure overlays don't get permanently stuck on touch */
+  .gallery-overlay { display: none; }
+  .gallery-item:active .gallery-overlay { display: flex; opacity: 1; }
+
+  /* Prevent tap highlight flash */
+  button, a { -webkit-tap-highlight-color: transparent; }
+}

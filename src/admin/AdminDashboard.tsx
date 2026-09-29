@@ -1,261 +1,315 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GALLERY_CATEGORIES } from './config';
-import { galleryStorage } from '../utils/galleryStorage';
-import type { GalleryItem } from '../utils/galleryStorage';
-import { instagramStorage } from '../utils/instagramStorage';
-import type { InstagramReel } from '../utils/instagramStorage';
+import {
+  fetchAllMedia,
+  insertMedia,
+  updateMedia,
+  deleteMedia,
+  isValidImageUrl,
+  detectReelUrlType,
+  getYouTubeEmbedUrl,
+  getInstagramEmbedUrl,
+  isValidUrl,
+} from '../lib/mediaService';
+import type { MediaItem } from '../lib/mediaService';
 
+// ─── Tab / View States ────────────────────────────────────────
 type TabState = 'gallery_manage' | 'gallery_add' | 'reels_manage' | 'reels_add';
 
-export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
-  const [view, setView] = useState<TabState>('gallery_manage');
-  const [message, setMessage] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+// ─── Shared style tokens ──────────────────────────────────────
+const btnStyle: React.CSSProperties = {
+  fontFamily: "var(--font-body)",
+  fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em',
+  textTransform: 'uppercase', cursor: 'pointer',
+  padding: '12px 24px', border: 'none', transition: 'all 0.2s ease',
+};
 
-  // Gallery State
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState(GALLERY_CATEGORIES[1] || 'PERFORMANCES');
-  const [year, setYear] = useState('');
-  const [description, setDescription] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const inputStyle: React.CSSProperties = {
+  width: '100%', background: 'var(--color-bg-primary)',
+  border: '1px solid var(--color-border)',
+  padding: '12px 16px', fontFamily: "var(--font-body)",
+  fontSize: '16px', color: 'var(--color-text-primary)', outline: 'none',
+  marginBottom: '20px', boxSizing: 'border-box',
+};
 
-  // Reels State
-  const [reels, setReels] = useState<InstagramReel[]>([]);
-  const [reelEditingId, setReelEditingId] = useState<string | null>(null);
-  const [reelName, setReelName] = useState('');
-  const [reelUrl, setReelUrl] = useState('');
-  const [reelDescription, setReelDescription] = useState('');
+const labelStyle: React.CSSProperties = {
+  fontFamily: "var(--font-body)", fontSize: '12px',
+  letterSpacing: '0.15em', fontWeight: 600, color: 'var(--color-accent)',
+  textTransform: 'uppercase', display: 'block', marginBottom: '8px',
+};
+
+// ─── Reel Preview Component ───────────────────────────────────
+function ReelPreview({ url }: { url: string }) {
+  const type = detectReelUrlType(url);
+
+  if (type === 'youtube' || type === 'youtube_short') {
+    const embedUrl = getYouTubeEmbedUrl(url);
+    if (!embedUrl) return <div style={{ color: 'var(--color-text-secondary)', fontSize: '13px', padding: '12px 0' }}>Invalid YouTube URL</div>;
+    return (
+      <div style={{ position: 'relative', paddingTop: '56.25%', marginBottom: '16px', background: '#000' }}>
+        <iframe
+          src={embedUrl}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title="YouTube preview"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'instagram') {
+    const embedUrl = getInstagramEmbedUrl(url);
+    if (!embedUrl) return null;
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        <iframe
+          src={embedUrl}
+          style={{ width: '100%', height: '500px', border: 'none', maxWidth: '320px' }}
+          scrolling="no"
+          allowTransparency
+          title="Instagram reel preview"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'direct_video') {
+    return (
+      <video
+        src={url}
+        controls
+        style={{ width: '100%', maxHeight: '300px', marginBottom: '16px', background: '#000' }}
+      />
+    );
+  }
+
+  return null;
+}
+
+// ─── Image Preview Component ──────────────────────────────────
+function ImagePreview({ url }: { url: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    loadItems();
-    loadReels();
+    setLoaded(false);
+    setError(false);
+  }, [url]);
+
+  if (!url) return null;
+
+  return (
+    <div style={{ marginBottom: '16px', border: '1px solid var(--color-border)', overflow: 'hidden', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-secondary)' }}>
+      {!loaded && !error && (
+        <div style={{ color: 'var(--color-text-secondary)', fontSize: '13px', padding: '20px' }}>Loading preview...</div>
+      )}
+      {error && (
+        <div style={{ color: '#e57373', fontSize: '13px', padding: '20px', textAlign: 'center' }}>
+          ⚠ Could not load image.<br/>Check the URL and try again.
+        </div>
+      )}
+      <img
+        src={url}
+        alt="Preview"
+        onLoad={() => setLoaded(true)}
+        onError={() => setError(true)}
+        style={{ width: '100%', maxHeight: '300px', objectFit: 'contain', display: loaded ? 'block' : 'none' }}
+      />
+    </div>
+  );
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────
+export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+  const [view, setView] = useState<TabState>('gallery_manage');
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // All media items from DB
+  const [allMedia, setAllMedia] = useState<MediaItem[]>([]);
+
+  // ── Gallery form state ──────────────────────────────────────
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [imgTitle, setImgTitle] = useState('');
+  const [imgUrl, setImgUrl] = useState('');
+  const [imgCategory, setImgCategory] = useState(GALLERY_CATEGORIES[1] || 'PERFORMANCES');
+  const [imgDescription, setImgDescription] = useState('');
+  const [imgUrlError, setImgUrlError] = useState('');
+
+  // ── Reel form state ─────────────────────────────────────────
+  const [reelEditingId, setReelEditingId] = useState<string | null>(null);
+  const [reelTitle, setReelTitle] = useState('');
+  const [reelUrl, setReelUrl] = useState('');
+  const [reelDescription, setReelDescription] = useState('');
+  const [reelUrlError, setReelUrlError] = useState('');
+
+  // ─── Data loading ─────────────────────────────────────────
+  const loadMedia = useCallback(async () => {
+    setIsLoading(true);
+    const data = await fetchAllMedia();
+    setAllMedia(data);
+    setIsLoading(false);
   }, []);
 
-  const showMessage = (msg: string) => {
-    setMessage(msg);
-    setTimeout(() => setMessage(''), 4000);
+  useEffect(() => { loadMedia(); }, [loadMedia]);
+
+  const images = allMedia.filter(m => m.media_type === 'image');
+  const reels = allMedia.filter(m => m.media_type === 'reel');
+
+  // ─── Toast helper ─────────────────────────────────────────
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4500);
   };
 
-  // ----------------------------------------------------
-  // GALLERY LOGIC
-  // ----------------------------------------------------
-  const loadItems = async () => {
-    try {
-      const data = await galleryStorage.getGalleryItems();
-      setItems(data.sort((a, b) => b.createdAt - a.createdAt));
-    } catch (err) {
-      console.error('Failed to load gallery items', err);
-    }
-  };
-
-  const resetGalleryForm = () => {
+  // ─── Gallery form helpers ─────────────────────────────────
+  const resetImgForm = () => {
     setEditingId(null);
-    setTitle('');
-    setCategory(GALLERY_CATEGORIES[1] || 'PERFORMANCES');
-    setYear('');
-    setDescription('');
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setImgTitle('');
+    setImgUrl('');
+    setImgCategory(GALLERY_CATEGORIES[1] || 'PERFORMANCES');
+    setImgDescription('');
+    setImgUrlError('');
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file (JPG, PNG, WEBP).');
-      return;
-    }
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const compressImage = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 1200;
-          let width = img.width;
-          let height = img.height;
-          if (width > height) {
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-          } else {
-            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return reject('No canvas context');
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.85));
-        };
-        img.onerror = reject;
-      };
-      reader.onerror = reject;
-    });
-  };
-
-  const handleSaveGallery = async (e: React.FormEvent) => {
+  const handleSaveImage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !category || (!imageFile && !imagePreview)) {
-      alert('Please provide an image, title, and category.');
-      return;
-    }
+    setImgUrlError('');
+
+    if (!imgTitle.trim()) { showToast('Please enter an image title.', 'error'); return; }
+    if (!imgUrl.trim()) { setImgUrlError('Please enter a valid image URL.'); return; }
+    if (!isValidImageUrl(imgUrl)) { setImgUrlError('Please enter a valid URL.'); return; }
+
     setIsSaving(true);
     try {
-      let finalImageData = imagePreview!;
-      if (imageFile) finalImageData = await compressImage(imageFile);
-      const item: GalleryItem = {
-        id: editingId || `gallery_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        imageData: finalImageData, title, category, year, description,
-        createdAt: editingId ? (items.find(i => i.id === editingId)?.createdAt || Date.now()) : Date.now(),
-      };
-      await galleryStorage.saveGalleryItem(item);
-      await loadItems();
-      showMessage('Image added to gallery successfully.');
-      if (!editingId) resetGalleryForm();
+      if (editingId) {
+        const { error } = await updateMedia(editingId, {
+          title: imgTitle,
+          description: imgDescription,
+          media_url: imgUrl,
+          category: imgCategory,
+        });
+        if (error) { showToast('Failed to update image. Please try again.', 'error'); return; }
+        showToast('Image updated successfully.');
+      } else {
+        const { error } = await insertMedia({
+          title: imgTitle,
+          description: imgDescription,
+          media_type: 'image',
+          media_url: imgUrl,
+          category: imgCategory,
+        });
+        if (error) { showToast('Failed to save image. Please try again.', 'error'); return; }
+        showToast('Image added to gallery successfully.');
+        resetImgForm();
+      }
+      await loadMedia();
       setView('gallery_manage');
-    } catch (err) {
-      alert('Failed to save image.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleEditGallery = (item: GalleryItem) => {
+  const handleEditImage = (item: MediaItem) => {
     setEditingId(item.id);
-    setTitle(item.title); setCategory(item.category); setYear(item.year || '');
-    setDescription(item.description); setImagePreview(item.imageData); setImageFile(null);
+    setImgTitle(item.title);
+    setImgUrl(item.media_url);
+    setImgCategory(item.category || GALLERY_CATEGORIES[1]);
+    setImgDescription(item.description || '');
+    setImgUrlError('');
     setView('gallery_add');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteGallery = async (id: string) => {
-    if (window.confirm("Are you sure you want to remove this image from the gallery?")) {
-      await galleryStorage.deleteGalleryItem(id);
-      await loadItems();
-    }
+  const handleDeleteImage = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) return;
+    const { error } = await deleteMedia(id);
+    if (error) { showToast('Failed to delete image. Please try again.', 'error'); return; }
+    showToast('Image deleted successfully.');
+    await loadMedia();
   };
 
-  // ----------------------------------------------------
-  // REELS LOGIC
-  // ----------------------------------------------------
-  const loadReels = async () => {
-    try {
-      const data = await instagramStorage.getReels();
-      setReels(data.sort((a, b) => b.createdAt - a.createdAt));
-    } catch (err) {
-      console.error('Failed to load reels', err);
-    }
+  const handleToggleImageActive = async (item: MediaItem) => {
+    await updateMedia(item.id, { is_active: !item.is_active });
+    await loadMedia();
   };
 
+  // ─── Reel form helpers ────────────────────────────────────
   const resetReelForm = () => {
     setReelEditingId(null);
-    setReelName('');
+    setReelTitle('');
     setReelUrl('');
     setReelDescription('');
+    setReelUrlError('');
   };
 
-  const isValidReelUrl = (url: string) => {
-    try {
-      const trimmed = url.trim();
-      const parsed = new URL(trimmed);
-      if (parsed.hostname !== 'instagram.com' && parsed.hostname !== 'www.instagram.com') return false;
-      if (!parsed.pathname.startsWith('/reel/')) return false;
-      return true;
-    } catch {
-      return false;
+  const validateReelUrl = (url: string): string => {
+    if (!url.trim()) return 'Please enter a reel URL.';
+    if (!isValidUrl(url)) return 'Please enter a valid URL.';
+    const type = detectReelUrlType(url);
+    if (type === 'unsupported') {
+      return 'Unsupported URL format. Use YouTube, YouTube Shorts, Instagram Reel, or direct MP4 links.';
     }
+    return '';
   };
 
   const handleSaveReel = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reelName || !reelUrl) {
-      alert('Please provide a reel name and URL.');
-      return;
-    }
-    if (!isValidReelUrl(reelUrl)) {
-      alert('Please enter a valid Instagram Reel URL (e.g. https://www.instagram.com/reel/XXXXXXXXXXX/)');
-      return;
-    }
+    const urlErr = validateReelUrl(reelUrl);
+    setReelUrlError(urlErr);
+    if (urlErr) return;
+    if (!reelTitle.trim()) { showToast('Please enter a reel title.', 'error'); return; }
 
     setIsSaving(true);
     try {
-      const item: InstagramReel = {
-        id: reelEditingId || `reel_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: reelName.trim(),
-        url: reelUrl.trim(),
-        description: reelDescription.trim(),
-        createdAt: reelEditingId ? (reels.find(i => i.id === reelEditingId)?.createdAt || Date.now()) : Date.now(),
-      };
-      await instagramStorage.saveReel(item);
-      await loadReels();
-      showMessage('Instagram reel saved successfully.');
-      if (!reelEditingId) resetReelForm();
+      if (reelEditingId) {
+        const { error } = await updateMedia(reelEditingId, {
+          title: reelTitle,
+          description: reelDescription,
+          media_url: reelUrl,
+        });
+        if (error) { showToast('Failed to update reel. Please try again.', 'error'); return; }
+        showToast('Reel updated successfully.');
+      } else {
+        const { error } = await insertMedia({
+          title: reelTitle,
+          description: reelDescription,
+          media_type: 'reel',
+          media_url: reelUrl,
+        });
+        if (error) { showToast('Failed to save reel. Please try again.', 'error'); return; }
+        showToast('Reel saved successfully.');
+        resetReelForm();
+      }
+      await loadMedia();
       setView('reels_manage');
-    } catch (err) {
-      alert('Failed to save reel.');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleEditReel = (item: InstagramReel) => {
+  const handleEditReel = (item: MediaItem) => {
     setReelEditingId(item.id);
-    setReelName(item.name);
-    setReelUrl(item.url);
+    setReelTitle(item.title);
+    setReelUrl(item.media_url);
     setReelDescription(item.description || '');
+    setReelUrlError('');
     setView('reels_add');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteReel = async (id: string) => {
-    if (window.confirm("Are you sure you want to remove this Instagram Reel?")) {
-      await instagramStorage.deleteReel(id);
-      await loadReels();
-    }
+    if (!window.confirm('Are you sure you want to delete this reel?')) return;
+    const { error } = await deleteMedia(id);
+    if (error) { showToast('Failed to delete reel. Please try again.', 'error'); return; }
+    showToast('Reel deleted successfully.');
+    await loadMedia();
   };
 
-
-  // ----------------------------------------------------
-  // STYLES
-  // ----------------------------------------------------
-  const btnStyle: React.CSSProperties = {
-    fontFamily: "var(--font-body)",
-    fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em',
-    textTransform: 'uppercase', cursor: 'pointer',
-    padding: '12px 24px', border: 'none', transition: 'all 0.2s ease',
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%', background: 'var(--color-bg-primary)',
-    border: '1px solid var(--color-border)',
-    padding: '12px 16px', fontFamily: "var(--font-body)",
-    fontSize: '16px', color: 'var(--color-text-primary)', outline: 'none',
-    marginBottom: '20px',
-  };
-
-  const labelStyle: React.CSSProperties = {
-    fontFamily: "var(--font-body)", fontSize: '12px',
-    letterSpacing: '0.15em', fontWeight: 600, color: 'var(--color-accent)',
-    textTransform: 'uppercase', display: 'block', marginBottom: '8px',
-  };
-
+  // ─── Render ───────────────────────────────────────────────
   return (
     <div style={{
       minHeight: '100vh',
@@ -267,21 +321,22 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
       <header style={{
         borderBottom: '1px solid var(--color-border)',
         backgroundColor: 'var(--color-bg-primary)',
-        padding: '24px 48px',
+        padding: '20px 24px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         position: 'sticky', top: 0, zIndex: 10,
         boxShadow: '0 4px 20px rgba(59, 41, 34, 0.05)',
+        flexWrap: 'wrap', gap: '12px',
       }}>
         <div>
           <div style={{
             fontFamily: "var(--font-body)", fontSize: '12px',
             letterSpacing: '0.2em', color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '4px'
           }}>Chathur Lakshana</div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: '24px', color: 'var(--color-text-heading)' }}>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(18px, 3vw, 24px)', color: 'var(--color-text-heading)' }}>
             ADMIN DASHBOARD
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ fontFamily: "var(--font-body)", fontSize: '14px', color: 'var(--color-text-secondary)' }}>
             Welcome, Admin
           </div>
@@ -296,238 +351,213 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </div>
       </header>
 
-      <div style={{ maxWidth: '1200px', margin: '48px auto', padding: '0 24px' }}>
-        
-        {/* Top Navigation */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '40px', flexWrap: 'wrap' }}>
-          {/* Gallery Tabs */}
-          <div style={{ display: 'flex', gap: '16px', borderRight: '2px solid var(--color-border)', paddingRight: '24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '32px auto', padding: '0 16px' }}>
+
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', borderRight: '2px solid var(--color-border)', paddingRight: '16px', flexWrap: 'wrap' }}>
             <button
               className={view === 'gallery_manage' ? "btn-primary" : ""}
-              onClick={() => { setView('gallery_manage'); resetGalleryForm(); }}
+              onClick={() => { setView('gallery_manage'); resetImgForm(); }}
               style={{
-                ...btnStyle,
+                ...btnStyle, fontSize: '11px',
                 background: view === 'gallery_manage' ? undefined : 'transparent',
                 color: view === 'gallery_manage' ? undefined : 'var(--color-text-heading)',
                 border: view === 'gallery_manage' ? 'none' : '1px solid var(--color-border)',
               }}
             >
-              VIEW GALLERY ({items.length})
+              GALLERY ({images.length})
             </button>
             <button
               className={view === 'gallery_add' ? "btn-primary" : ""}
-              onClick={() => setView('gallery_add')}
+              onClick={() => { resetImgForm(); setView('gallery_add'); }}
               style={{
-                ...btnStyle,
+                ...btnStyle, fontSize: '11px',
                 background: view === 'gallery_add' ? undefined : 'transparent',
                 color: view === 'gallery_add' ? undefined : 'var(--color-text-heading)',
                 border: view === 'gallery_add' ? 'none' : '1px solid var(--color-border)',
               }}
             >
-              + ADD GALLERY IMAGE
+              + ADD IMAGE
             </button>
           </div>
 
-          {/* Reels Tabs */}
-          <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
               className={view === 'reels_manage' ? "btn-primary" : ""}
               onClick={() => { setView('reels_manage'); resetReelForm(); }}
               style={{
-                ...btnStyle,
+                ...btnStyle, fontSize: '11px',
                 background: view === 'reels_manage' ? undefined : 'transparent',
                 color: view === 'reels_manage' ? undefined : 'var(--color-text-heading)',
                 border: view === 'reels_manage' ? 'none' : '1px solid var(--color-border)',
               }}
             >
-              INSTAGRAM REELS ({reels.length})
+              REELS ({reels.length})
             </button>
             <button
               className={view === 'reels_add' ? "btn-primary" : ""}
-              onClick={() => setView('reels_add')}
+              onClick={() => { resetReelForm(); setView('reels_add'); }}
               style={{
-                ...btnStyle,
+                ...btnStyle, fontSize: '11px',
                 background: view === 'reels_add' ? undefined : 'transparent',
                 color: view === 'reels_add' ? undefined : 'var(--color-text-heading)',
                 border: view === 'reels_add' ? 'none' : '1px solid var(--color-border)',
               }}
             >
-              + ADD INSTAGRAM REEL
+              + ADD REEL
             </button>
           </div>
         </div>
 
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            style={{
-              backgroundColor: 'rgba(184, 138, 50, 0.1)', border: '1px solid var(--color-border)',
-              color: 'var(--color-accent)', padding: '16px', fontFamily: "var(--font-body)",
-              fontSize: '15px', marginBottom: '32px', borderRadius: '4px',
-            }}
-          >
-            {message}
-          </motion.div>
+        {/* Toast Message */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              style={{
+                backgroundColor: toast.type === 'error' ? 'rgba(229, 115, 115, 0.1)' : 'rgba(184, 138, 50, 0.1)',
+                border: `1px solid ${toast.type === 'error' ? 'rgba(229,115,115,0.4)' : 'var(--color-border)'}`,
+                color: toast.type === 'error' ? '#e57373' : 'var(--color-accent)',
+                padding: '16px', fontFamily: "var(--font-body)",
+                fontSize: '14px', marginBottom: '24px', borderRadius: '4px',
+              }}
+            >
+              {toast.msg}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Loading state */}
+        {isLoading && (
+          <div style={{ textAlign: 'center', padding: '60px', color: 'var(--color-text-secondary)', fontFamily: "var(--font-body)" }}>
+            Loading media...
+          </div>
         )}
 
-        {/* ======================================= */}
-        {/* GALLERY VIEWS */}
-        {/* ======================================= */}
-        {view === 'gallery_add' && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', padding: '40px' }}
+        {/* ─── ADD / EDIT IMAGE ─── */}
+        {!isLoading && view === 'gallery_add' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', padding: 'clamp(20px, 4vw, 40px)' }}
           >
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: '32px', color: 'var(--color-accent)', marginBottom: '32px' }}>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--color-accent)', marginBottom: '28px' }}>
               {editingId ? 'Edit Gallery Image' : 'Add Gallery Image'}
             </h2>
-            <form onSubmit={handleSaveGallery} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px' }}>
-              <div>
-                <label style={labelStyle}>Image Upload</label>
-                <div style={{
-                    border: '1px dashed var(--color-border)', backgroundColor: 'var(--color-bg-secondary)',
-                    height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    position: 'relative', overflow: 'hidden', marginBottom: '16px',
-                }}>
-                  {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ textAlign: 'center', padding: '24px' }}>
-                      <div style={{ color: 'var(--color-accent)', marginBottom: '12px', fontSize: '24px' }}>🖼️</div>
-                      <div style={{ fontFamily: "var(--font-body)", fontSize: '14px', color: 'var(--color-text-secondary)' }}>Select or drop image here</div>
-                    </div>
-                  )}
-                  <input type="file" accept="image/*" onChange={handleImageSelect} ref={fileInputRef} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }} />
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <button type="button" onClick={() => fileInputRef.current?.click()} style={{ ...btnStyle, background: 'transparent', color: 'var(--color-accent)', border: '1px solid var(--color-border)' }}>Browse / Choose Image</button>
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Title</label>
-                <input type="text" required style={inputStyle} value={title} onChange={e => setTitle(e.target.value)} />
-                <label style={labelStyle}>Category</label>
-                <select required style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }} value={category} onChange={e => setCategory(e.target.value)}>
-                  {GALLERY_CATEGORIES.filter(c => c !== 'ALL').map(cat => <option key={cat} value={cat} style={{ background: 'var(--color-bg-primary)' }}>{cat}</option>)}
-                </select>
-                <label style={labelStyle}>Year</label>
-                <input type="text" required style={inputStyle} value={year} onChange={e => setYear(e.target.value)} />
-                <label style={labelStyle}>Description (Optional)</label>
-                <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }} value={description} onChange={e => setDescription(e.target.value)} />
-                <div style={{ marginTop: '24px', display: 'flex', gap: '16px' }}>
-                  <button type="submit" disabled={isSaving} className="btn-primary" style={{ ...btnStyle, flex: 1, opacity: isSaving ? 0.7 : 1 }}>
-                    {isSaving ? 'SAVING...' : 'SAVE TO GALLERY'}
-                  </button>
-                  {editingId && (
-                    <button type="button" onClick={() => { setView('gallery_manage'); resetGalleryForm(); }} style={{ ...btnStyle, background: 'transparent', color: 'var(--color-text-heading)', border: '1px solid var(--color-border)' }}>CANCEL</button>
-                  )}
-                </div>
-              </div>
-            </form>
-          </motion.div>
-        )}
+            <form onSubmit={handleSaveImage} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={labelStyle}>Image Title *</label>
+              <input
+                type="text" required style={inputStyle}
+                value={imgTitle} onChange={e => setImgTitle(e.target.value)}
+                placeholder="e.g. Annual Day Performance 2025"
+              />
 
-        {view === 'gallery_manage' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: '32px', color: 'var(--color-accent)', marginBottom: '32px' }}>Manage Gallery</h2>
-            {items.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)', fontFamily: "var(--font-body)" }}>No gallery images added yet.</div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-                {items.map(item => (
-                  <div key={item.id} style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
-                    <div style={{ height: '200px', width: '100%' }}>
-                      <img src={item.imageData} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ padding: '20px' }}>
-                      <div style={{ fontFamily: "var(--font-body)", fontSize: '11px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '8px' }}>{item.category} {item.year ? `· ${item.year}` : ''}</div>
-                      <h4 style={{ fontFamily: "var(--font-display)", fontSize: '20px', color: 'var(--color-text-heading)', marginBottom: '8px' }}>{item.title}</h4>
-                      <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                        <button onClick={() => handleEditGallery(item)} style={{ ...btnStyle, padding: '8px 16px', fontSize: '11px', flex: 1, background: 'rgba(184, 138, 50, 0.1)', color: 'var(--color-accent)', border: '1px solid var(--color-border)' }}>EDIT</button>
-                        <button onClick={() => handleDeleteGallery(item.id)} style={{ ...btnStyle, padding: '8px 16px', fontSize: '11px', flex: 1, background: 'rgba(229, 115, 115, 0.1)', color: '#e57373', border: '1px solid rgba(229, 115, 115, 0.3)' }}>DELETE</button>
-                      </div>
-                    </div>
-                  </div>
+              <label style={labelStyle}>Category</label>
+              <select
+                style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                value={imgCategory} onChange={e => setImgCategory(e.target.value)}
+              >
+                {GALLERY_CATEGORIES.filter(c => c !== 'ALL').map(cat => (
+                  <option key={cat} value={cat} style={{ background: 'var(--color-bg-primary)' }}>{cat}</option>
                 ))}
-              </div>
-            )}
-          </motion.div>
-        )}
+              </select>
 
-        {/* ======================================= */}
-        {/* REELS VIEWS */}
-        {/* ======================================= */}
-        {view === 'reels_add' && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', padding: '40px' }}
-          >
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: '32px', color: 'var(--color-accent)', marginBottom: '32px' }}>
-              {reelEditingId ? 'Edit Instagram Reel' : 'Add Instagram Reel'}
-            </h2>
-            <form onSubmit={handleSaveReel} style={{ maxWidth: '600px' }}>
-              <label style={labelStyle}>Reel Name *</label>
-              <input type="text" required style={inputStyle} value={reelName} onChange={e => setReelName(e.target.value)} placeholder="e.g. Annual Day 2026" />
-              
-              <label style={labelStyle}>Instagram Reel URL *</label>
-              <input type="url" required style={inputStyle} value={reelUrl} onChange={e => setReelUrl(e.target.value)} placeholder="https://www.instagram.com/reel/XXXXXXXXXXX/" />
-              
+              <label style={labelStyle}>Image URL *</label>
+              <input
+                type="url" required style={{ ...inputStyle, marginBottom: imgUrlError ? '4px' : '20px' }}
+                value={imgUrl} onChange={e => { setImgUrl(e.target.value); setImgUrlError(''); }}
+                placeholder="https://example.com/image.jpg"
+              />
+              {imgUrlError && (
+                <div style={{ color: '#e57373', fontSize: '13px', fontFamily: "var(--font-body)", marginBottom: '16px' }}>
+                  {imgUrlError}
+                </div>
+              )}
+
+              {/* Live preview */}
+              {imgUrl && isValidUrl(imgUrl) && <ImagePreview url={imgUrl} />}
+
               <label style={labelStyle}>Description (Optional)</label>
-              <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }} value={reelDescription} onChange={e => setReelDescription(e.target.value)} placeholder="Brief description of the reel..." />
-              
-              <div style={{ marginTop: '24px', display: 'flex', gap: '16px' }}>
-                <button type="submit" disabled={isSaving} className="btn-primary" style={{ ...btnStyle, flex: 1, opacity: isSaving ? 0.7 : 1 }}>
-                  {isSaving ? 'SAVING...' : 'SAVE REEL'}
+              <textarea
+                style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
+                value={imgDescription} onChange={e => setImgDescription(e.target.value)}
+                placeholder="Brief description of the image..."
+              />
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
+                <button
+                  type="submit" disabled={isSaving} className="btn-primary"
+                  style={{ ...btnStyle, flex: '1 1 200px', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
+                >
+                  {isSaving ? 'SAVING...' : editingId ? 'UPDATE IMAGE' : 'SAVE IMAGE'}
                 </button>
-                {reelEditingId && (
-                  <button type="button" onClick={() => { setView('reels_manage'); resetReelForm(); }} style={{ ...btnStyle, background: 'transparent', color: 'var(--color-text-heading)', border: '1px solid var(--color-border)' }}>CANCEL</button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => { setView('gallery_manage'); resetImgForm(); }}
+                  style={{ ...btnStyle, flex: '1 1 120px', background: 'transparent', color: 'var(--color-text-heading)', border: '1px solid var(--color-border)' }}
+                >
+                  CANCEL
+                </button>
               </div>
             </form>
           </motion.div>
         )}
 
-        {view === 'reels_manage' && (
+        {/* ─── MANAGE IMAGES ─── */}
+        {!isLoading && view === 'gallery_manage' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: '32px', color: 'var(--color-accent)', marginBottom: '32px' }}>Manage Instagram Reels</h2>
-            {reels.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)', fontFamily: "var(--font-body)" }}>No Instagram Reels added yet.</div>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--color-accent)', marginBottom: '24px' }}>
+              Manage Gallery Images
+            </h2>
+            {images.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)', fontFamily: "var(--font-body)" }}>
+                No images added yet. Click <strong>+ ADD IMAGE</strong> to get started.
+              </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-                {reels.map(item => (
+              <div className="admin-media-grid">
+                {images.map(item => (
                   <div key={item.id} style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
-                    <div style={{ padding: '24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '24px', height: '24px', color: 'var(--color-accent)' }}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                          </svg>
-                        </div>
-                        <h4 style={{ fontFamily: "var(--font-display)", fontSize: '20px', color: 'var(--color-text-heading)', margin: 0 }}>{item.name}</h4>
+                    {/* Image Preview */}
+                    <div style={{ height: '180px', overflow: 'hidden', background: 'var(--color-bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                      <img
+                        src={item.media_url}
+                        alt={item.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={e => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div style={{ display: 'none', position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: 'var(--color-text-secondary)', fontSize: '13px', fontFamily: "var(--font-body)", textAlign: 'center', padding: '8px' }}>
+                        ⚠ Image failed to load
                       </div>
-                      
-                      <p style={{
-                        fontFamily: "var(--font-body)", fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: '24px',
-                        overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-                      }}>
-                        {item.description || 'No description provided.'}
-                      </p>
-                      
+                      {!item.is_active && (
+                        <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#e57373', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 8px', letterSpacing: '0.1em' }}>
+                          HIDDEN
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ padding: '16px' }}>
+                      <div style={{ fontFamily: "var(--font-body)", fontSize: '11px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                        {item.category}
+                      </div>
+                      <h4 style={{ fontFamily: "var(--font-display)", fontSize: '18px', color: 'var(--color-text-heading)', marginBottom: '8px', lineHeight: 1.3 }}>{item.title}</h4>
+                      <div style={{ fontFamily: "var(--font-body)", fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                        {item.media_url}
+                      </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 100%', textAlign: 'center', textDecoration: 'none',
-                            background: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)',
-                            marginBottom: '8px'
-                          }}
-                        >VIEW ON INSTAGRAM</a>
-                        <button onClick={() => handleEditReel(item)} style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: 1, background: 'rgba(184, 138, 50, 0.1)', color: 'var(--color-accent)', border: '1px solid var(--color-border)' }}>EDIT</button>
-                        <button onClick={() => handleDeleteReel(item.id)} style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: 1, background: 'rgba(229, 115, 115, 0.1)', color: '#e57373', border: '1px solid rgba(229, 115, 115, 0.3)' }}>DELETE</button>
+                        <button onClick={() => handleEditImage(item)}
+                          style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 60px', background: 'rgba(184, 138, 50, 0.1)', color: 'var(--color-accent)', border: '1px solid var(--color-border)' }}>
+                          EDIT
+                        </button>
+                        <button onClick={() => handleToggleImageActive(item)}
+                          style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 60px', background: item.is_active ? 'rgba(100,100,100,0.1)' : 'rgba(100,200,100,0.1)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}>
+                          {item.is_active ? 'HIDE' : 'SHOW'}
+                        </button>
+                        <button onClick={() => handleDeleteImage(item.id)}
+                          style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 60px', background: 'rgba(229, 115, 115, 0.1)', color: '#e57373', border: '1px solid rgba(229, 115, 115, 0.3)' }}>
+                          DELETE
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -537,10 +567,166 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           </motion.div>
         )}
 
+        {/* ─── ADD / EDIT REEL ─── */}
+        {!isLoading && view === 'reels_add' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', padding: 'clamp(20px, 4vw, 40px)' }}
+          >
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--color-accent)', marginBottom: '28px' }}>
+              {reelEditingId ? 'Edit Reel / Video' : 'Add Reel / Video'}
+            </h2>
+
+            <div style={{ marginBottom: '20px', padding: '12px 16px', background: 'rgba(184,138,50,0.07)', border: '1px solid var(--color-border)', fontFamily: "var(--font-body)", fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+              <strong style={{ color: 'var(--color-accent)' }}>Supported formats:</strong> YouTube, YouTube Shorts, Instagram Reels, direct MP4/WebM video URLs
+            </div>
+
+            <form onSubmit={handleSaveReel} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={labelStyle}>Reel / Video Title *</label>
+              <input
+                type="text" required style={inputStyle}
+                value={reelTitle} onChange={e => setReelTitle(e.target.value)}
+                placeholder="e.g. Annual Day Reel 2025"
+              />
+
+              <label style={labelStyle}>Video / Reel URL *</label>
+              <input
+                type="url" required style={{ ...inputStyle, marginBottom: reelUrlError ? '4px' : '20px' }}
+                value={reelUrl} onChange={e => { setReelUrl(e.target.value); setReelUrlError(''); }}
+                placeholder="https://youtube.com/watch?v=... or https://youtu.be/..."
+              />
+              {reelUrlError && (
+                <div style={{ color: '#e57373', fontSize: '13px', fontFamily: "var(--font-body)", marginBottom: '16px' }}>
+                  ⚠ {reelUrlError}
+                </div>
+              )}
+
+              {/* Live preview */}
+              {reelUrl && isValidUrl(reelUrl) && detectReelUrlType(reelUrl) !== 'unsupported' && (
+                <div style={{ marginBottom: '8px' }}>
+                  <label style={{ ...labelStyle, marginBottom: '12px' }}>Preview</label>
+                  <ReelPreview url={reelUrl} />
+                </div>
+              )}
+
+              <label style={labelStyle}>Description (Optional)</label>
+              <textarea
+                style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
+                value={reelDescription} onChange={e => setReelDescription(e.target.value)}
+                placeholder="Brief description of the reel..."
+              />
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
+                <button
+                  type="submit" disabled={isSaving} className="btn-primary"
+                  style={{ ...btnStyle, flex: '1 1 200px', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
+                >
+                  {isSaving ? 'SAVING...' : reelEditingId ? 'UPDATE REEL' : 'SAVE REEL'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setView('reels_manage'); resetReelForm(); }}
+                  style={{ ...btnStyle, flex: '1 1 120px', background: 'transparent', color: 'var(--color-text-heading)', border: '1px solid var(--color-border)' }}
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {/* ─── MANAGE REELS ─── */}
+        {!isLoading && view === 'reels_manage' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(22px, 4vw, 32px)', color: 'var(--color-accent)', marginBottom: '24px' }}>
+              Manage Reels / Videos
+            </h2>
+            {reels.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)', fontFamily: "var(--font-body)" }}>
+                No reels added yet. Click <strong>+ ADD REEL</strong> to get started.
+              </div>
+            ) : (
+              <div className="admin-media-grid">
+                {reels.map(item => {
+                  const urlType = detectReelUrlType(item.media_url);
+                  return (
+                    <div key={item.id} style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
+                      {/* Reel Embed Preview */}
+                      <div style={{ position: 'relative' }}>
+                        {(urlType === 'youtube' || urlType === 'youtube_short') && (() => {
+                          const embedUrl = getYouTubeEmbedUrl(item.media_url);
+                          return embedUrl ? (
+                            <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000' }}>
+                              <iframe
+                                src={embedUrl}
+                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                title={item.title}
+                              />
+                            </div>
+                          ) : null;
+                        })()}
+                        {urlType === 'instagram' && (
+                          <div style={{ padding: '20px', background: 'var(--color-bg-secondary)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '24px', marginBottom: '8px' }}>📱</div>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: '13px', color: 'var(--color-text-secondary)' }}>Instagram Reel</div>
+                          </div>
+                        )}
+                        {urlType === 'direct_video' && (
+                          <video src={item.media_url} controls style={{ width: '100%', maxHeight: '200px', display: 'block', background: '#000' }} />
+                        )}
+                        {urlType === 'unsupported' && (
+                          <div style={{ padding: '20px', background: 'var(--color-bg-secondary)', textAlign: 'center' }}>
+                            <div style={{ fontFamily: "var(--font-body)", fontSize: '13px', color: '#e57373' }}>⚠ Unsupported URL format</div>
+                          </div>
+                        )}
+                        {!item.is_active && (
+                          <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#e57373', color: '#fff', fontSize: '10px', fontWeight: 700, padding: '2px 8px', letterSpacing: '0.1em' }}>
+                            HIDDEN
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ padding: '16px' }}>
+                        <div style={{ fontFamily: "var(--font-body)", fontSize: '11px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                          {urlType.replace('_', ' ')}
+                        </div>
+                        <h4 style={{ fontFamily: "var(--font-display)", fontSize: '18px', color: 'var(--color-text-heading)', marginBottom: '8px', lineHeight: 1.3 }}>{item.title}</h4>
+                        {item.description && (
+                          <p style={{ fontFamily: "var(--font-body)", fontSize: '14px', color: 'var(--color-text-secondary)', marginBottom: '12px', lineHeight: 1.5 }}>
+                            {item.description}
+                          </p>
+                        )}
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <button onClick={() => handleEditReel(item)}
+                            style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 60px', background: 'rgba(184, 138, 50, 0.1)', color: 'var(--color-accent)', border: '1px solid var(--color-border)' }}>
+                            EDIT
+                          </button>
+                          <button onClick={() => handleDeleteReel(item.id)}
+                            style={{ ...btnStyle, padding: '8px 12px', fontSize: '11px', flex: '1 1 60px', background: 'rgba(229, 115, 115, 0.1)', color: '#e57373', border: '1px solid rgba(229, 115, 115, 0.3)' }}>
+                            DELETE
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
+
+      {/* Responsive styles */}
       <style>{`
-        @media (max-width: 768px) {
-          form { grid-template-columns: 1fr !important; gap: 24px !important; }
+        .admin-media-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+        }
+        @media (max-width: 480px) {
+          .admin-media-grid {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
     </div>
