@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import logoImg from '../img/LOGO.png'
 
 interface LoadingScreenProps {
   onComplete: () => void
@@ -46,37 +47,51 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '40px',
+            gap: '36px',
           }}
         >
-          {/* CL Logo */}
+          {/* Official Academy Logo */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '16px',
+              gap: '18px',
             }}
           >
             <div style={{
-              width: '76px',
-              height: '76px',
-              border: '1.5px solid rgba(212, 175, 101, 0.65)',
-              borderRadius: '50%',
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: '30px',
-              fontWeight: 500,
-              color: '#D4AF65',
-              letterSpacing: '0.05em',
-              boxShadow: '0 0 35px rgba(212, 175, 101, 0.25), inset 0 0 15px rgba(212, 175, 101, 0.1)',
             }}>
-              CL
+              {/* Soft ambient golden glow behind logo */}
+              <div style={{
+                position: 'absolute',
+                width: '130px',
+                height: '130px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(212, 175, 101, 0.3) 0%, rgba(38, 13, 32, 0) 70%)',
+                filter: 'blur(12px)',
+                pointerEvents: 'none',
+              }} />
+              <img
+                src={logoImg}
+                alt="Chathur Lakshana Academy Logo"
+                style={{
+                  height: '92px',
+                  width: 'auto',
+                  maxWidth: '130px',
+                  objectFit: 'contain',
+                  display: 'block',
+                  filter: 'drop-shadow(0 0 25px rgba(212, 175, 101, 0.35)) drop-shadow(0 6px 16px rgba(0, 0, 0, 0.8))',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              />
             </div>
             <div style={{
               fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
