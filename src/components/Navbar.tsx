@@ -18,13 +18,16 @@ export default function Navbar({ onOpenEnrol }: NavbarProps = {}) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const handleEnrolClick = () => {
+  const handleEnrolClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     setMobileOpen(false)
     if (onOpenEnrol) {
       onOpenEnrol()
-    } else {
-      window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: 'Bharatanatyam' } }))
     }
+    window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: 'Bharatanatyam' } }))
   }
 
   useEffect(() => {

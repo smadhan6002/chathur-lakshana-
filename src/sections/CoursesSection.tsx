@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 
 const secondaryCourses = [
@@ -37,27 +37,33 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   )
 }
 
-// 3D Card with subtle perspective tilt on desktop, disabled on mobile/touch
+// 3D Card with subtle perspective tilt on desktop (DOM ref-based to prevent any React re-renders during mouse moves)
 function TiltCard({ children, className = "", style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
-  const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (window.matchMedia('(hover: none)').matches) return
-    if (!cardRef.current) return
+    if (!cardRef.current || !innerRef.current) return
     const rect = cardRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left - rect.width / 2
     const y = e.clientY - rect.top - rect.height / 2
-    // Subtle max 5 deg tilt
-    const rx = -(y / (rect.height / 2)) * 4.5
-    const ry = (x / (rect.width / 2)) * 4.5
-    setTilt({ rx, ry })
+    const rx = -(y / (rect.height / 2)) * 4
+    const ry = (x / (rect.width / 2)) * 4
+    innerRef.current.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`
+  }
+
+  const handleMouseEnter = () => {
+    if (innerRef.current) {
+      innerRef.current.style.transition = 'transform 0.1s ease-out'
+    }
   }
 
   const handleMouseLeave = () => {
-    setTilt({ rx: 0, ry: 0 })
-    setIsHovered(false)
+    if (innerRef.current) {
+      innerRef.current.style.transition = 'transform 0.4s ease-out, box-shadow 0.4s ease'
+      innerRef.current.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0px)'
+    }
   }
 
   return (
@@ -65,7 +71,7 @@ function TiltCard({ children, className = "", style = {} }: { children: React.Re
       ref={cardRef}
       className={`card-3d-wrap ${className}`}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
         perspective: '1000px',
@@ -73,12 +79,11 @@ function TiltCard({ children, className = "", style = {} }: { children: React.Re
       }}
     >
       <div
+        ref={innerRef}
         className="card-3d-inner"
         style={{
-          transform: isHovered
-            ? `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-4px)`
-            : 'rotateX(0deg) rotateY(0deg) translateY(0px)',
-          transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.4s ease-out, box-shadow 0.4s ease',
+          transform: 'rotateX(0deg) rotateY(0deg) translateY(0px)',
+          transition: 'transform 0.4s ease-out, box-shadow 0.4s ease',
           height: '100%',
         }}
       >
@@ -96,9 +101,9 @@ export default function CoursesSection({ onOpenEnquire }: CoursesSectionProps) {
   const handleEnquire = (courseName: string) => {
     if (onOpenEnquire) {
       onOpenEnquire(courseName)
-    } else {
-      window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: courseName } }))
     }
+    // Backup event dispatch
+    window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: courseName } }))
   }
   return (
     <section
@@ -281,12 +286,20 @@ export default function CoursesSection({ onOpenEnquire }: CoursesSectionProps) {
 
                 <button
                   type="button"
-                  onClick={() => handleEnquire('Bharatanatyam')}
+                  id="bharatanatyam-enquire-btn"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleEnquire('Bharatanatyam')
+                  }}
                   className="btn-primary"
                   style={{
+                    position: 'relative',
+                    zIndex: 20,
                     padding: '16px 48px',
                     fontSize: '13px',
                     cursor: 'pointer',
+                    pointerEvents: 'auto',
                   }}
                 >
                   ENQUIRE NOW
@@ -388,8 +401,15 @@ export default function CoursesSection({ onOpenEnquire }: CoursesSectionProps) {
 
                   <button
                     type="button"
-                    onClick={() => handleEnquire(course.title)}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleEnquire(course.title)
+                    }}
                     style={{
+                      position: 'relative',
+                      zIndex: 20,
+                      pointerEvents: 'auto',
                       background: 'none',
                       border: 'none',
                       padding: '4px 0',
