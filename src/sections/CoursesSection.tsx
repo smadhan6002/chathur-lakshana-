@@ -88,7 +88,18 @@ function TiltCard({ children, className = "", style = {} }: { children: React.Re
   )
 }
 
-export default function CoursesSection() {
+interface CoursesSectionProps {
+  onOpenEnquire?: (course: string) => void
+}
+
+export default function CoursesSection({ onOpenEnquire }: CoursesSectionProps) {
+  const handleEnquire = (courseName: string) => {
+    if (onOpenEnquire) {
+      onOpenEnquire(courseName)
+    } else {
+      window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: courseName } }))
+    }
+  }
   return (
     <section
       id="courses"
@@ -269,7 +280,8 @@ export default function CoursesSection() {
                 </div>
 
                 <button
-                  onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
+                  type="button"
+                  onClick={() => handleEnquire('Bharatanatyam')}
                   className="btn-primary"
                   style={{
                     padding: '16px 48px',
@@ -369,9 +381,43 @@ export default function CoursesSection() {
                     borderTop: '1px solid rgba(212, 175, 101, 0.18)',
                     paddingTop: '18px',
                     fontWeight: 500,
+                    marginBottom: '16px',
                   }}>
                     {course.details}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleEnquire(course.title)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '4px 0',
+                      fontFamily: "var(--font-body)",
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      letterSpacing: '0.2em',
+                      color: 'var(--accent-gold)',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      transition: 'all 0.25s ease',
+                      marginTop: 'auto',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.color = 'var(--accent-gold-light)'
+                      e.currentTarget.style.letterSpacing = '0.24em'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.color = 'var(--accent-gold)'
+                      e.currentTarget.style.letterSpacing = '0.2em'
+                    }}
+                  >
+                    <span>ENQUIRE FOR {course.title.toUpperCase()}</span>
+                    <span>→</span>
+                  </button>
                 </div>
               </TiltCard>
             </FadeIn>

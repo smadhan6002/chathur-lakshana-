@@ -10,9 +10,22 @@ const navLinks = [
   { label: 'CONTACT', href: '#contact' },
 ]
 
-export default function Navbar() {
+interface NavbarProps {
+  onOpenEnrol?: () => void
+}
+
+export default function Navbar({ onOpenEnrol }: NavbarProps = {}) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const handleEnrolClick = () => {
+    setMobileOpen(false)
+    if (onOpenEnrol) {
+      onOpenEnrol()
+    } else {
+      window.dispatchEvent(new CustomEvent('open-enquiry-modal', { detail: { course: 'Bharatanatyam' } }))
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
@@ -124,7 +137,8 @@ export default function Navbar() {
             </button>
           ))}
           <button
-            onClick={() => scrollTo('#contact')}
+            type="button"
+            onClick={handleEnrolClick}
             className="btn-primary"
             style={{
               padding: '12px 28px',
@@ -199,7 +213,8 @@ export default function Navbar() {
             ))}
             <div style={{ padding: '16px 28px' }}>
               <button
-                onClick={() => scrollTo('#contact')}
+                type="button"
+                onClick={handleEnrolClick}
                 className="btn-primary"
                 style={{ width: '100%', padding: '14px', fontSize: '13px' }}
               >

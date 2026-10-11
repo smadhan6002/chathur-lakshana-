@@ -20,11 +20,31 @@ import AdminDashboard from './admin/AdminDashboard'
 import LoadingScreen from './components/LoadingScreen'
 import ScrollProgressBar from './components/ScrollProgressBar'
 import CustomCursor from './components/CustomCursor'
+import EnquiryModal from './components/EnquiryModal'
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isEnquiryOpen, setIsEnquiryOpen] = useState(false)
+  const [enquiryCourse, setEnquiryCourse] = useState('Bharatanatyam')
+
+  const handleOpenEnquiry = (course = 'Bharatanatyam') => {
+    setEnquiryCourse(course)
+    setIsEnquiryOpen(true)
+  }
+
+  const handleCloseEnquiry = () => {
+    setIsEnquiryOpen(false)
+  }
+
+  useEffect(() => {
+    const handleEvent = (e: any) => {
+      handleOpenEnquiry(e.detail?.course || 'Bharatanatyam')
+    }
+    window.addEventListener('open-enquiry-modal', handleEvent)
+    return () => window.removeEventListener('open-enquiry-modal', handleEvent)
+  }, [])
 
   useEffect(() => {
     // Check session storage on mount
@@ -95,14 +115,14 @@ export default function App() {
       {/* Premium custom cursor (desktop only) */}
       <CustomCursor />
 
-      <Navbar />
+      <Navbar onOpenEnrol={() => handleOpenEnquiry('Bharatanatyam')} />
       <main>
         <HeroSection />
         <VideoShowcaseSection />
         <AcademySection />
         <TimelineSection />
         <FounderSection />
-        <CoursesSection />
+        <CoursesSection onOpenEnquire={handleOpenEnquiry} />
         <GallerySection />
         <ScrollingGallerySection />
         <ReelsSection />
@@ -110,6 +130,13 @@ export default function App() {
         <ContactSection />
       </main>
       <Footer />
+
+      {/* Dedicated Admissions Enquiry Modal */}
+      <EnquiryModal
+        isOpen={isEnquiryOpen}
+        initialCourse={enquiryCourse}
+        onClose={handleCloseEnquiry}
+      />
     </>
   )
 }
