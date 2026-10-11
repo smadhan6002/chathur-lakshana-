@@ -53,9 +53,9 @@ export default function GoldParticles({ density = 34 }: { density?: number }) {
         if (p.x > width + 10) p.x = -10
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(214, 168, 79, ${p.o})`
-        ctx.shadowColor = 'rgba(231, 200, 121, 0.8)'
-        ctx.shadowBlur = 4
+        ctx.fillStyle = `rgba(212, 175, 101, ${p.o})`
+        ctx.shadowColor = 'rgba(245, 221, 160, 0.85)'
+        ctx.shadowBlur = 5
         ctx.fill()
       }
       rafId = requestAnimationFrame(draw)

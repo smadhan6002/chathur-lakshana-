@@ -9,6 +9,7 @@ import TimelineSection from './sections/TimelineSection'
 import FounderSection from './sections/FounderSection'
 import CoursesSection from './sections/CoursesSection'
 import GallerySection from './sections/GallerySection'
+import ScrollingGallerySection from './sections/ScrollingGallerySection'
 import ReelsSection from './sections/ReelsSection'
 import AchievementsSection from './sections/AchievementsSection'
 import ContactSection from './sections/ContactSection'
@@ -103,6 +104,7 @@ export default function App() {
         <FounderSection />
         <CoursesSection />
         <GallerySection />
+        <ScrollingGallerySection />
         <ReelsSection />
         <AchievementsSection />
         <ContactSection />

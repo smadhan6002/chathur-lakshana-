@@ -41,7 +41,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            backgroundColor: '#24102D',
+            backgroundColor: '#160811',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -62,28 +62,28 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             }}
           >
             <div style={{
-              width: '72px',
-              height: '72px',
-              border: '1px solid rgba(214, 168, 79, 0.6)',
+              width: '76px',
+              height: '76px',
+              border: '1.5px solid rgba(212, 175, 101, 0.65)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: '28px',
+              fontSize: '30px',
               fontWeight: 500,
-              color: '#D6A84F',
+              color: '#D4AF65',
               letterSpacing: '0.05em',
-              boxShadow: '0 0 30px rgba(214, 168, 79, 0.2)',
+              boxShadow: '0 0 35px rgba(212, 175, 101, 0.25), inset 0 0 15px rgba(212, 175, 101, 0.1)',
             }}>
               CL
             </div>
             <div style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: '10px',
+              fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
+              fontSize: '11px',
               fontWeight: 600,
-              letterSpacing: '0.3em',
-              color: 'rgba(214, 168, 79, 0.7)',
+              letterSpacing: '0.35em',
+              color: '#D4AF65',
               textTransform: 'uppercase',
             }}>
               CHATHUR LAKSHANA
@@ -91,20 +91,20 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           </motion.div>
 
           {/* Gold Progress Bar */}
-          <div style={{ width: '200px', position: 'relative' }}>
+          <div style={{ width: '220px', position: 'relative' }}>
             <div style={{
               width: '100%',
-              height: '1px',
-              backgroundColor: 'rgba(214, 168, 79, 0.15)',
+              height: '1.5px',
+              backgroundColor: 'rgba(212, 175, 101, 0.2)',
             }} />
             <motion.div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                height: '1px',
-                backgroundColor: '#D6A84F',
-                boxShadow: '0 0 8px rgba(214, 168, 79, 0.6)',
+                height: '1.5px',
+                backgroundColor: '#D4AF65',
+                boxShadow: '0 0 10px rgba(212, 175, 101, 0.8)',
                 width: `${progress}%`,
               }}
               transition={{ ease: 'linear' }}
@@ -117,11 +117,11 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
             style={{
-              fontFamily: "'Inter', system-ui, sans-serif",
-              fontSize: '10px',
+              fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
+              fontSize: '11px',
               fontWeight: 500,
               letterSpacing: '0.3em',
-              color: 'rgba(233, 221, 235, 0.5)',
+              color: '#C9B5BD',
               textTransform: 'uppercase',
             }}
           >

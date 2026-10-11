@@ -81,8 +81,8 @@ export default function CustomCursor() {
           left: 0,
           width: isHovering ? '6px' : '5px',
           height: isHovering ? '6px' : '5px',
-          backgroundColor: '#D6A84F', // Gold
-          boxShadow: '0 0 4px rgba(0,0,0,0.4)',
+          backgroundColor: '#D4AF65', // Primary antique gold
+          boxShadow: '0 0 8px rgba(212, 175, 101, 0.8), 0 0 2px rgba(245, 221, 160, 0.9)',
           borderRadius: '50%',
           pointerEvents: 'none',
           zIndex: 9998,
@@ -98,15 +98,16 @@ export default function CustomCursor() {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: isHovering ? '40px' : '28px',
-          height: isHovering ? '40px' : '28px',
-          border: `1.5px solid ${isHovering ? '#D6A84F' : 'rgba(214, 168, 79, 0.6)'}`,
-          boxShadow: '0 0 4px rgba(0,0,0,0.2)',
+          width: isHovering ? '44px' : '30px',
+          height: isHovering ? '44px' : '30px',
+          border: `1.5px solid ${isHovering ? '#F5DDA0' : 'rgba(212, 175, 101, 0.45)'}`,
+          boxShadow: isHovering ? '0 0 16px rgba(212, 175, 101, 0.35)' : 'none',
+          backgroundColor: isHovering ? 'rgba(212, 175, 101, 0.05)' : 'transparent',
           borderRadius: '50%',
           pointerEvents: 'none',
           zIndex: 9997,
           opacity: isVisible ? 1 : 0,
-          transition: 'opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-color 0.3s ease',
+          transition: 'opacity 0.3s ease, width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease',
           willChange: 'transform',
         }}
       />

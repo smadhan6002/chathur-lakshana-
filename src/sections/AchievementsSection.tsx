@@ -30,7 +30,7 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay }}>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
       {children}
     </motion.div>
   )
@@ -39,75 +39,92 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 export default function AchievementsSection() {
   return (
     <section
+      id="recognition"
       style={{
         position: 'relative',
-        padding: '140px 0',
+        padding: 'clamp(100px, 12vw, 150px) 0',
         overflow: 'hidden',
-        backgroundColor: 'var(--royal-purple)',
+        backgroundColor: '#260D20', // Secondary rich plum background
+        borderBottom: '1px solid rgba(212, 175, 101, 0.2)',
       }}
     >
-      {/* Background radial glow */}
+      {/* Background Radial Glow */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse at center, rgba(214, 168, 79, 0.08) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse at center, rgba(212, 175, 101, 0.07) 0%, transparent 65%)',
         pointerEvents: 'none',
       }} />
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
-        {/* Header */}
+        {/* Section Header */}
         <FadeIn>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(50px, 8vw, 84px)' }}>
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: '12px', fontWeight: 600, letterSpacing: '0.25em',
-              color: 'var(--champagne)', textTransform: 'uppercase', marginBottom: '16px',
-            }}>✧ RECOGNITION</div>
+              color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '16px',
+            }}>✧ RECOGNITION &amp; HERITAGE ✧</div>
             <h2 style={{
               fontFamily: "var(--font-display)",
-              fontSize: 'clamp(3rem, 5vw, 4.5rem)', fontWeight: 400,
-              color: 'var(--cream)', marginBottom: '20px',
+              fontSize: 'clamp(2.8rem, 5vw, 4.8rem)', fontWeight: 400,
+              color: 'var(--text-primary)', marginBottom: '20px',
+              lineHeight: 1.15,
             }}>Achievements &amp; Voices</h2>
             <div style={{
-              width: '60px', height: '1.5px',
-              background: 'var(--gold)',
+              width: '70px', height: '1.5px',
+              background: 'linear-gradient(90deg, transparent, var(--accent-gold), transparent)',
               margin: '0 auto 24px',
             }} />
             <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 'clamp(1.1rem, 1.8vw, 1.3rem)', fontStyle: 'italic',
-              color: 'var(--light-lavender)',
+              fontFamily: "var(--font-display)",
+              fontSize: 'clamp(1.2rem, 2vw, 1.55rem)', fontStyle: 'italic',
+              color: 'var(--text-secondary)',
             }}>
               Measured not in trophies, but in artistes who keep dancing.
             </p>
           </div>
         </FadeIn>
 
-        {/* Stats grid */}
+        {/* Stats Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '24px',
-          marginBottom: '80px',
+          marginBottom: 'clamp(56px, 8vw, 80px)',
         }} className="stats-grid">
           {stats.map((s, i) => (
             <FadeIn key={s.label} delay={i * 0.08}>
               <div style={{
-                border: '1px solid rgba(214, 168, 79, 0.3)',
-                padding: '40px 20px',
+                border: '1px solid rgba(212, 175, 101, 0.32)',
+                borderRadius: '2px',
+                padding: 'clamp(32px, 4vw, 44px) 20px',
                 textAlign: 'center',
-                backgroundColor: 'rgba(36, 16, 45, 0.4)',
-                boxShadow: '0 10px 30px rgba(36, 16, 45, 0.5)',
-              }}>
+                backgroundColor: '#301326',
+                boxShadow: '0 12px 35px rgba(0, 0, 0, 0.4)',
+                position: 'relative',
+                transition: 'all 0.35s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.7)'
+                e.currentTarget.style.boxShadow = '0 18px 45px rgba(0, 0, 0, 0.55), 0 0 20px rgba(212, 175, 101, 0.15)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.32)'
+                e.currentTarget.style.boxShadow = '0 12px 35px rgba(0, 0, 0, 0.4)'
+              }}
+              >
                 <div style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: 'clamp(3rem, 5vw, 4.5rem)', fontWeight: 400,
-                  color: 'var(--gold)', lineHeight: 1,
-                  textShadow: '0 2px 10px rgba(214, 168, 79, 0.2)',
+                  fontSize: 'clamp(3.2rem, 5vw, 4.6rem)', fontWeight: 400,
+                  color: 'var(--accent-gold)', lineHeight: 1,
+                  textShadow: '0 0 20px rgba(212, 175, 101, 0.3)',
                 }}>{s.num}</div>
                 <div style={{
                   fontFamily: "var(--font-body)",
-                  fontSize: '13px', letterSpacing: '0.15em', fontWeight: 600,
-                  color: 'var(--champagne)',
+                  fontSize: '12px', letterSpacing: '0.18em', fontWeight: 600,
+                  color: 'var(--accent-gold-light)',
                   textTransform: 'uppercase', marginTop: '16px',
                 }}>{s.label}</div>
               </div>
@@ -115,53 +132,61 @@ export default function AchievementsSection() {
           ))}
         </div>
 
-        {/* Testimonials */}
+        {/* Testimonials Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '24px',
         }} className="testimonials-grid">
           {testimonials.map((t, i) => (
-            <FadeIn key={t.name} delay={0.3 + i * 0.1}>
+            <FadeIn key={t.name} delay={0.25 + i * 0.1}>
               <div style={{
-                border: '1px solid rgba(214, 168, 79, 0.2)',
-                padding: '40px 32px',
-                backgroundColor: 'rgba(36, 16, 45, 0.6)',
-                boxShadow: '0 10px 30px rgba(36, 16, 45, 0.5)',
+                border: '1px solid rgba(212, 175, 101, 0.3)',
+                borderRadius: '2px',
+                padding: 'clamp(32px, 4vw, 44px) clamp(24px, 3vw, 36px)',
+                backgroundColor: '#301326',
+                boxShadow: '0 12px 35px rgba(0, 0, 0, 0.4)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'border-color 0.3s ease, transform 0.3s ease',
+                transition: 'border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'var(--gold)'
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.7)'
                 e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 18px 45px rgba(0, 0, 0, 0.55), 0 0 20px rgba(212, 175, 101, 0.15)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(214, 168, 79, 0.2)'
+                e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.3)'
                 e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 12px 35px rgba(0, 0, 0, 0.4)'
               }}
               >
                 <div style={{
                   fontFamily: "var(--font-display)",
-                  fontSize: '48px', color: 'var(--gold)',
-                  lineHeight: 1, marginBottom: '10px', opacity: 0.8,
+                  fontSize: '52px', color: 'var(--accent-gold)',
+                  lineHeight: 1, marginBottom: '12px', opacity: 0.85,
                 }}>"</div>
                 <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: 'clamp(1.05rem, 1.5vw, 1.15rem)', fontStyle: 'italic',
-                  color: 'var(--cream)',
-                  lineHeight: 1.8, marginBottom: '32px', flexGrow: 1,
+                  fontFamily: "var(--font-display)",
+                  fontSize: 'clamp(1.15rem, 1.8vw, 1.35rem)', fontStyle: 'italic',
+                  color: 'var(--text-primary)',
+                  lineHeight: 1.7, marginBottom: '32px', flexGrow: 1,
                 }}>{t.quote}</p>
                 <div style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em',
-                  color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '6px',
-                }}>{t.name}</div>
-                <div style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '15px', color: 'var(--light-lavender)', fontWeight: 400,
-                }}>{t.role}</div>
+                  borderTop: '1px solid rgba(212, 175, 101, 0.18)',
+                  paddingTop: '16px',
+                }}>
+                  <div style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '12px', fontWeight: 600, letterSpacing: '0.18em',
+                    color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '4px',
+                  }}>{t.name}</div>
+                  <div style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 400,
+                  }}>{t.role}</div>
+                </div>
               </div>
             </FadeIn>
           ))}

@@ -2,58 +2,60 @@
 @import "tailwindcss";
 
 :root {
-  /* Royal Purple Luxury Palette */
-  --royal-purple: #4B1F5E;
-  --deep-purple: #32143F;
-  --luxury-purple: #633477;
-  --soft-purple: #806092;
-  --light-lavender: #E9DDEB;
-  --cream: #FAF4F7;
-  --soft-blush: #F4E8EF;
-  --gold: #D6A84F;
-  --champagne: #E7C879;
-  --dark-plum: #24102D;
-
-  /* Global Functional Mappings */
-  --color-bg-primary: var(--cream);
-  --color-bg-secondary: var(--light-lavender);
-  --color-bg-alternate: var(--soft-blush);
+  /* Master Luxury Burgundy & Antique Gold Palette */
+  --bg-primary: #160811;       /* Deep burgundy-black primary background */
+  --bg-secondary: #260D20;     /* Rich deep plum secondary background */
+  --bg-card: #301326;          /* Luxurious plum-card background */
+  --bg-card-hover: #3C1830;    /* Slightly elevated card surface on hover */
   
-  --color-text-primary: var(--dark-plum);
-  --color-text-heading: var(--deep-purple);
-  --color-text-secondary: var(--luxury-purple);
+  --accent-gold: #D4AF65;       /* Primary antique gold */
+  --accent-gold-light: #F5DDA0; /* Secondary champagne gold */
+  --accent-gold-dim: #997B3C;   /* Dimmed antique bronze */
   
-  --color-accent: var(--gold);
-  --color-accent-light: var(--champagne);
-  --color-border: rgba(214, 168, 79, 0.3); /* Soft Gold border */
-  --color-heritage: var(--royal-purple);
+  --text-primary: #FFF4E5;     /* Warm ivory white for high contrast readable headings & body */
+  --text-secondary: #C9B5BD;   /* Elegant dusty rose-lavender for subtitles and descriptions */
+  --text-muted: #8C7581;       /* Muted label text */
+  
+  --border-gold: rgba(212, 175, 101, 0.35);       /* Specified standard border */
+  --border-gold-subtle: rgba(212, 175, 101, 0.18);/* Subtle hairline borders */
+  --border-gold-bright: rgba(212, 175, 101, 0.65);/* Active/hover gold glow */
+  
+  /* Legacy & Functional Variable Compatibility */
+  --royal-purple: #260D20;
+  --deep-purple: #160811;
+  --luxury-purple: #C9B5BD;
+  --soft-purple: #8C7581;
+  --light-lavender: #C9B5BD;
+  --cream: #FFF4E5;
+  --soft-blush: #260D20;
+  --gold: #D4AF65;
+  --champagne: #F5DDA0;
+  --dark-plum: #160811;
 
-  /* Legacy variable mappings */
-  --color-bg-dark: var(--deep-purple);
-  --color-bg-deep: var(--dark-plum);
-  --color-bg-crimson: var(--royal-purple);
-  --color-bg-maroon: var(--deep-purple);
-  --color-bg-light: var(--cream);
-  --color-gold: var(--gold);
-  --color-gold-light: var(--champagne);
-  --color-gold-muted: rgba(214, 168, 79, 0.6);
-  --color-text-dark: var(--deep-purple);
-  --color-text-crimson: var(--luxury-purple);
-  --color-text-light: var(--cream);
-  --color-text-gold: var(--gold);
-  --color-text-muted: var(--soft-purple);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-alternate: var(--bg-card);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-heading: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  
+  --color-accent: var(--accent-gold);
+  --color-accent-light: var(--accent-gold-light);
+  --color-border: var(--border-gold);
+  --color-heritage: var(--bg-secondary);
 
   /* Typography */
   --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Spacing */
   --section-padding: 120px;
   --container-max: 1280px;
 
   /* Transitions */
-  --transition-base: 0.3s ease;
-  --transition-slow: 0.6s ease;
+  --transition-base: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 *, *::before, *::after {
@@ -64,20 +66,25 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg-primary);
+  color-scheme: dark;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
   line-height: 1.7;
   letter-spacing: 0.01em;
-  /* Custom cursor on desktop */
   cursor: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
 }
 
 /* Restore cursor on touch devices */
@@ -201,36 +208,84 @@ body {
   line-height: 1.7;
 }
 
-/* Button utility for consistency */
+/* Luxury Button Styling */
 .btn-primary {
-  background-color: var(--color-accent);
-  color: var(--color-text-primary);
-  border: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(184, 138, 50, 0.2);
+  background: linear-gradient(135deg, #D4AF65 0%, #C49C48 50%, #E7C879 100%);
+  color: #160811;
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: 1px solid rgba(245, 221, 160, 0.4);
+  box-shadow: 0 4px 20px rgba(212, 175, 101, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 2px;
 }
 .btn-primary:hover {
-  background-color: var(--color-accent-light);
+  background: linear-gradient(135deg, #F5DDA0 0%, #D4AF65 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(184, 138, 50, 0.3);
+  box-shadow: 0 8px 28px rgba(212, 175, 101, 0.4), 0 0 16px rgba(212, 175, 101, 0.3);
+  color: #160811;
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: var(--color-text-heading);
-  border: 1px solid var(--color-accent);
-  transition: all 0.2s ease;
+  background: rgba(48, 19, 38, 0.5);
+  backdrop-filter: blur(8px);
+  color: var(--text-primary);
+  border: 1px solid var(--border-gold);
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 2px;
 }
 .btn-secondary:hover {
-  background-color: var(--color-accent);
-  color: var(--cream);
+  background: rgba(212, 175, 101, 0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(212, 175, 101, 0.25);
+}
+
+/* Temple motif decorative elements */
+.temple-frame {
+  position: relative;
+  border: 1px solid var(--border-gold);
+  background: var(--bg-card);
+}
+.temple-frame::before, .temple-frame::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--accent-gold);
+  pointer-events: none;
+}
+.temple-frame::before {
+  top: -2px; left: -2px;
+  border-right: none; border-bottom: none;
+}
+.temple-frame::after {
+  bottom: -2px; right: -2px;
+  border-left: none; border-top: none;
+}
+
+/* 3D tilt perspective wrapper */
+.card-3d-wrap {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+.card-3d-inner {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  will-change: transform;
 }
 
 /* Gold decorative line */
 .gold-line {
   width: 60px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
   margin: 20px auto;
 }
 

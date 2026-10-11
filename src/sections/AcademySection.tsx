@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import academyImage from '../assets/upasana_uk_f7e914d7be394adcaa01b38b13fdb01b.jpg'
+import academyImage from '../img/imp 2.jpeg'
 
 const values = [
   {
@@ -19,13 +19,13 @@ const values = [
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const inView = useInView(ref, { once: true, margin: '-70px' })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: 'easeOut' }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
@@ -36,137 +36,212 @@ export default function AcademySection() {
   return (
     <section
       id="academy"
-      className="section-cinematic-top"
       style={{
-        backgroundColor: 'rgba(247, 241, 229, 0.7)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        padding: '120px 0 80px',
+        backgroundColor: '#260D20', // Rich secondary burgundy-plum background
+        padding: 'clamp(90px, 12vw, 140px) 0',
         position: 'relative',
         overflow: 'hidden',
+        borderBottom: '1px solid rgba(212, 175, 101, 0.2)',
       }}
     >
-      {/* Subtle radial at top */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: '200px',
-        background: 'linear-gradient(to bottom, rgba(184, 138, 50, 0.05), transparent)',
-        pointerEvents: 'none',
-      }} />
+      {/* Subtle Temple Arch Background Texture */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '240px',
+          background: 'linear-gradient(to bottom, rgba(22, 8, 17, 0.9), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: '-100px',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(212, 175, 101, 0.05) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
 
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)' }}>
-        {/* Section header */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
+        {/* Section Header */}
         <FadeIn>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(48px, 8vw, 84px)' }}>
             <div style={{
               fontFamily: "var(--font-body)",
-              fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)', fontWeight: 600, letterSpacing: '0.18em',
-              color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '20px',
-            }}>ABOUT THE ACADEMY</div>
+              fontSize: 'clamp(11px, 1.4vw, 12.5px)',
+              fontWeight: 600,
+              letterSpacing: '0.25em',
+              color: 'var(--accent-gold)',
+              textTransform: 'uppercase',
+              marginBottom: '18px',
+            }}>
+              ✧ ABOUT THE ACADEMY ✧
+            </div>
             <h2 style={{
               fontFamily: "var(--font-display)",
-              fontSize: 'clamp(2.5rem, 5vw, 5rem)', fontWeight: 400,
-              color: 'var(--color-text-heading)', lineHeight: 1.2, marginBottom: '24px',
+              fontSize: 'clamp(2.6rem, 5.2vw, 5rem)',
+              fontWeight: 400,
+              color: 'var(--text-primary)',
+              lineHeight: 1.15,
+              marginBottom: '24px',
             }}>
               A lineage kept alive, one adavu<br />at a time
             </h2>
             <div style={{
-              width: '60px', height: '1.5px',
-              background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
+              width: '70px',
+              height: '1.5px',
+              background: 'linear-gradient(90deg, transparent, var(--accent-gold), transparent)',
               margin: '0 auto 24px',
             }} />
             <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 'clamp(1.2rem, 1.8vw, 1.5rem)',
-              fontStyle: 'italic', color: 'var(--color-text-secondary)',
-              lineHeight: 1.7,
+              fontFamily: "var(--font-display)",
+              fontSize: 'clamp(1.25rem, 2vw, 1.6rem)',
+              fontStyle: 'italic',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+              maxWidth: '750px',
+              margin: '0 auto',
             }}>
               Chathur Lakshana — the four marks of a complete artiste: form, rhythm, emotion, devotion.
             </p>
           </div>
         </FadeIn>
 
-        {/* Two column layout: image + values */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '60px',
-          alignItems: 'start',
-        }}
+        {/* Two Column Layout: Authentic Imagery + Core Values */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 'clamp(32px, 5vw, 64px)',
+            alignItems: 'center',
+          }}
           className="academy-grid"
         >
-          {/* Left: Image with caption */}
-          <FadeIn delay={0.1}>
-            <div style={{
-              position: 'relative',
-              backgroundColor: 'var(--color-bg-alternate)',
-              overflow: 'hidden',
-              border: '1px solid var(--color-border)',
-              borderRadius: '2px',
-            }}>
-              <motion.img
-                src={academyImage}
-                alt="Bharatanatyam dancer eyes closeup"
-                initial={{ opacity: 0, scale: 1.04 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  filter: 'sepia(0.15) contrast(1.05)',
-                }}
-              />
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                padding: '20px 24px',
-                background: 'linear-gradient(to top, rgba(247, 241, 229, 0.95), rgba(247, 241, 229, 0.7), transparent)',
-              }}>
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '15px', fontStyle: 'italic', fontWeight: 500,
-                  color: 'var(--color-text-heading)', lineHeight: 1.6,
-                  marginTop: '20px',
-                }}>
-                  Drishti bhedam — the discipline of the gaze, taught before the feet ever move.
-                </p>
+          {/* Left: Image with Temple Frame & Corner Accents */}
+          <FadeIn delay={0.15}>
+            <div
+              style={{
+                position: 'relative',
+                backgroundColor: '#301326',
+                padding: '12px',
+                border: '1px solid rgba(212, 175, 101, 0.35)',
+                borderRadius: '2px',
+                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 101, 0.08)',
+              }}
+            >
+              {/* Corner Gold Motifs */}
+              <div style={{ position: 'absolute', top: '-3px', left: '-3px', width: '10px', height: '10px', borderTop: '2px solid var(--accent-gold)', borderLeft: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', top: '-3px', right: '-3px', width: '10px', height: '10px', borderTop: '2px solid var(--accent-gold)', borderRight: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', bottom: '-3px', left: '-3px', width: '10px', height: '10px', borderBottom: '2px solid var(--accent-gold)', borderLeft: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '10px', height: '10px', borderBottom: '2px solid var(--accent-gold)', borderRight: '2px solid var(--accent-gold)' }} />
+
+              <div style={{ overflow: 'hidden', position: 'relative' }}>
+                <motion.img
+                  src={academyImage}
+                  alt="Drishti Bhedam — Bharatanatyam dancer abhinaya and eye discipline"
+                  initial={{ scale: 1.05 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    filter: 'contrast(1.06) saturate(0.96)',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '24px 20px 16px',
+                    background: 'linear-gradient(to top, rgba(22, 8, 17, 0.95) 0%, rgba(22, 8, 17, 0.6) 60%, transparent 100%)',
+                  }}
+                >
+                  <p style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: 'clamp(14px, 1.8vw, 17px)',
+                    fontStyle: 'italic',
+                    fontWeight: 400,
+                    color: 'var(--accent-gold-light)',
+                    lineHeight: 1.5,
+                    margin: 0,
+                  }}>
+                    "Drishti bhedam — the discipline of the gaze, taught before the feet ever move."
+                  </p>
+                </div>
               </div>
             </div>
           </FadeIn>
 
-          {/* Right: Values */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Right: Pillars & Values Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
             {values.map((v, i) => (
-              <FadeIn key={v.label} delay={0.2 + i * 0.12}>
-                <div style={{
-                  backgroundColor: 'rgba(237, 225, 207, 0.65)', // var(--color-bg-secondary) semi-transparent
-                  backdropFilter: 'blur(4px)',
-                  WebkitBackdropFilter: 'blur(4px)',
-                  border: '1px solid rgba(216, 195, 154, 0.5)', // var(--color-border) with opacity
-                  padding: '28px 32px',
-                  transition: 'transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
-                  cursor: 'default',
-                }}
+              <FadeIn key={v.label} delay={0.25 + i * 0.12}>
+                <div
+                  style={{
+                    backgroundColor: '#301326', // Specified card background
+                    border: '1px solid rgba(212, 175, 101, 0.28)',
+                    padding: 'clamp(24px, 4vw, 32px) clamp(24px, 4vw, 36px)',
+                    position: 'relative',
+                    transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35)',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                  }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(184, 138, 50, 0.08)'
-                    e.currentTarget.style.backgroundColor = 'rgba(237, 225, 207, 0.85)'
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.65)'
+                    e.currentTarget.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 101, 0.15)'
+                    e.currentTarget.style.backgroundColor = '#38162D'
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                    e.currentTarget.style.backgroundColor = 'rgba(237, 225, 207, 0.65)'
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.28)'
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.35)'
+                    e.currentTarget.style.backgroundColor = '#301326'
                   }}
                 >
+                  {/* Subtle Gold Accent Left Indicator */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '3px',
+                      background: 'linear-gradient(to bottom, var(--accent-gold), transparent)',
+                    }}
+                  />
                   <div style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: '14px', fontWeight: 600, letterSpacing: '0.15em',
-                    color: 'var(--color-accent)', textTransform: 'uppercase', marginBottom: '12px',
-                  }}>{v.label}</div>
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    letterSpacing: '0.22em',
+                    color: 'var(--accent-gold)',
+                    textTransform: 'uppercase',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <span>✦</span> {v.label}
+                  </div>
                   <p style={{
                     fontFamily: "var(--font-body)",
-                    fontSize: '18px', fontWeight: 400,
-                    color: 'var(--color-text-primary)', lineHeight: 1.7,
+                    fontSize: 'clamp(15px, 1.6vw, 17px)',
+                    fontWeight: 400,
+                    color: 'var(--text-primary)',
+                    lineHeight: 1.7,
+                    margin: 0,
                   }}>{v.text}</p>
                 </div>
               </FadeIn>
@@ -176,8 +251,8 @@ export default function AcademySection() {
       </div>
 
       <style>{`
-        @media (max-width: 768px) {
-          .academy-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+        @media (max-width: 860px) {
+          .academy-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
         }
       `}</style>
     </section>

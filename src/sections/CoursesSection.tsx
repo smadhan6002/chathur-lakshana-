@@ -1,5 +1,5 @@
+import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
 
 const secondaryCourses = [
   {
@@ -28,27 +28,63 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: 'easeOut' }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
   )
 }
 
-function FadeInScale({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+// 3D Card with subtle perspective tilt on desktop, disabled on mobile/touch
+function TiltCard({ children, className = "", style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia('(hover: none)').matches) return
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+    // Subtle max 5 deg tilt
+    const rx = -(y / (rect.height / 2)) * 4.5
+    const ry = (x / (rect.width / 2)) * 4.5
+    setTilt({ rx, ry })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ rx: 0, ry: 0 })
+    setIsHovered(false)
+  }
+
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.98 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+    <div
+      ref={cardRef}
+      className={`card-3d-wrap ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        perspective: '1000px',
+        ...style,
+      }}
     >
-      {children}
-    </motion.div>
+      <div
+        className="card-3d-inner"
+        style={{
+          transform: isHovered
+            ? `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(-4px)`
+            : 'rotateX(0deg) rotateY(0deg) translateY(0px)',
+          transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.4s ease-out, box-shadow 0.4s ease',
+          height: '100%',
+        }}
+      >
+        {children}
+      </div>
+    </div>
   )
 }
 
@@ -57,193 +93,287 @@ export default function CoursesSection() {
     <section
       id="courses"
       style={{
-        backgroundColor: 'var(--soft-blush)',
-        padding: '120px 0',
+        backgroundColor: '#160811', // Deep burgundy background
+        padding: 'clamp(100px, 12vw, 150px) 0',
         position: 'relative',
         overflow: 'hidden',
+        borderBottom: '1px solid rgba(212, 175, 101, 0.2)',
       }}
     >
-      {/* Decorative Gold Elements */}
-      <div style={{
-        position: 'absolute', top: '40px', left: '-50px', width: '100px', height: '100px',
-        border: '1px solid rgba(214, 168, 79, 0.2)',
-        borderRadius: '50%',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '100px', right: '-150px', width: '300px', height: '300px',
-        border: '1px solid rgba(214, 168, 79, 0.1)',
-        borderRadius: '50%',
-        pointerEvents: 'none',
-      }} />
+      {/* Decorative Gold Circles / Temple Lighting in Background */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '80px',
+          left: '-80px',
+          width: '320px',
+          height: '320px',
+          border: '1px solid rgba(212, 175, 101, 0.12)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '120px',
+          right: '-120px',
+          width: '450px',
+          height: '450px',
+          border: '1px solid rgba(212, 175, 101, 0.08)',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }}
+      />
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
-        {/* Header */}
+        {/* Section Header */}
         <FadeIn>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(50px, 8vw, 84px)' }}>
             <div style={{
               fontFamily: "var(--font-body)",
-              fontSize: '12px', fontWeight: 600, letterSpacing: '0.25em',
-              color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '16px',
-            }}>✧ TRAINING</div>
+              fontSize: '12px',
+              fontWeight: 600,
+              letterSpacing: '0.25em',
+              color: 'var(--accent-gold)',
+              textTransform: 'uppercase',
+              marginBottom: '18px',
+            }}>
+              ✧ CLASSICAL CURRICULUM ✧
+            </div>
             <h2 style={{
               fontFamily: "var(--font-display)",
-              fontSize: 'clamp(3rem, 5vw, 5rem)', fontWeight: 400,
-              color: 'var(--deep-purple)', lineHeight: 1.2, marginBottom: '20px',
-            }}>Courses Offered</h2>
+              fontSize: 'clamp(2.8rem, 5.5vw, 5.2rem)',
+              fontWeight: 500,
+              color: '#F5DDA0',
+              textShadow: '0 0 25px rgba(212, 175, 101, 0.45), 0 4px 15px rgba(0, 0, 0, 0.8)',
+              lineHeight: 1.15,
+              marginBottom: '20px',
+            }}>
+              Courses Offered
+            </h2>
             <div style={{
-              width: '60px', height: '1.5px',
-              background: 'var(--gold)',
+              width: '70px',
+              height: '1.5px',
+              background: 'linear-gradient(90deg, transparent, var(--accent-gold), transparent)',
               margin: '0 auto 24px',
             }} />
             <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 'clamp(1.1rem, 1.8vw, 1.3rem)',
-              fontStyle: 'italic', color: 'var(--luxury-purple)', lineHeight: 1.7,
+              fontFamily: "var(--font-display)",
+              fontSize: 'clamp(1.2rem, 2vw, 1.55rem)',
+              fontStyle: 'italic',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
             }}>
               Graded, unhurried and rooted — every syllabus ends in performance.
             </p>
           </div>
         </FadeIn>
 
-        {/* Featured Course: Bharatanatyam */}
-        <FadeInScale delay={0.1}>
-          <div
-            style={{
-              backgroundColor: 'var(--cream)',
-              border: '1px solid var(--color-border)',
-              padding: '60px 40px',
-              marginBottom: '40px',
-              textAlign: 'center',
-              boxShadow: '0 15px 40px rgba(50, 20, 63, 0.05)',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Subtle inner gold frame */}
-            <div style={{
-              position: 'absolute', inset: '12px',
-              border: '1px solid rgba(214, 168, 79, 0.2)',
-              pointerEvents: 'none',
-            }} />
-            
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{
-                fontFamily: "var(--font-body)",
-                fontSize: '12px', fontWeight: 600, letterSpacing: '0.25em',
-                color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '16px',
-              }}>SIGNATURE COURSE</div>
-              
-              <h3 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 400,
-                color: 'var(--deep-purple)', marginBottom: '24px',
-              }}>Bharatanatyam</h3>
-              
-              <div style={{
-                width: '60px', height: '1.5px',
-                backgroundColor: 'var(--gold)',
-                margin: '0 auto 24px',
-              }} />
-              
-              <p style={{
-                fontFamily: "var(--font-body)",
-                fontSize: 'clamp(1rem, 2vw, 1.25rem)', color: 'var(--luxury-purple)',
-                lineHeight: 1.7, maxWidth: '700px', margin: '0 auto 32px',
-              }}>
-                Adavus, alarippu to varnam, abhinaya and nattuvangam, taught in graded years.
-              </p>
-              
-              <div style={{
-                fontFamily: "var(--font-body)",
-                fontSize: '15px', color: 'var(--deep-purple)',
-                lineHeight: 1.6, letterSpacing: '0.05em',
-                marginBottom: '48px',
-                display: 'flex', flexWrap: 'wrap',
-                justifyContent: 'center', alignItems: 'center', gap: '16px'
-              }} className="highlights-wrapper">
-                <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Weekly Practical + Theory</span>
-                <span className="bullet-point" style={{ color: 'var(--gold)' }}>✧</span>
-                <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Annual Sabha Performance</span>
-                <span className="bullet-point" style={{ color: 'var(--gold)' }}>✧</span>
-                <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Arangetram Guidance</span>
-              </div>
-              
-              <button
-                onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
-                className="btn-primary"
+        {/* Featured Course: Bharatanatyam with Temple Frame & 3D Tilt */}
+        <FadeIn delay={0.15}>
+          <TiltCard style={{ marginBottom: '40px' }}>
+            <div
+              style={{
+                backgroundColor: '#301326', // Specified card background
+                border: '1.5px solid rgba(212, 175, 101, 0.45)',
+                borderRadius: '3px',
+                padding: 'clamp(36px, 6vw, 68px) clamp(24px, 5vw, 56px)',
+                textAlign: 'center',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 101, 0.08)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Corner Gold Motifs */}
+              <div style={{ position: 'absolute', top: '10px', left: '10px', width: '12px', height: '12px', borderTop: '2px solid var(--accent-gold)', borderLeft: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', top: '10px', right: '10px', width: '12px', height: '12px', borderTop: '2px solid var(--accent-gold)', borderRight: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', bottom: '10px', left: '10px', width: '12px', height: '12px', borderBottom: '2px solid var(--accent-gold)', borderLeft: '2px solid var(--accent-gold)' }} />
+              <div style={{ position: 'absolute', bottom: '10px', right: '10px', width: '12px', height: '12px', borderBottom: '2px solid var(--accent-gold)', borderRight: '2px solid var(--accent-gold)' }} />
+
+              {/* Inner Decorative Hairline Border */}
+              <div
                 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '13px', fontWeight: 600, letterSpacing: '0.15em',
-                  padding: '16px 48px', textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  color: 'var(--deep-purple)',
-                  border: '1px solid var(--gold)',
+                  position: 'absolute',
+                  inset: '16px',
+                  border: '1px solid rgba(212, 175, 101, 0.18)',
+                  pointerEvents: 'none',
                 }}
-              >
-                ENQUIRE NOW
-              </button>
+              />
+
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  letterSpacing: '0.25em',
+                  color: 'var(--accent-gold)',
+                  textTransform: 'uppercase',
+                  marginBottom: '16px',
+                }}>
+                  ✧ SIGNATURE COURSE ✧
+                </div>
+
+                <h3 style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 'clamp(2.6rem, 4.5vw, 4.2rem)',
+                  fontWeight: 400,
+                  color: '#FFF4E5',
+                  textShadow: '0 0 20px rgba(212, 175, 101, 0.25)',
+                  marginBottom: '20px',
+                  lineHeight: 1.15,
+                }}>
+                  Bharatanatyam
+                </h3>
+
+                <div style={{
+                  width: '60px',
+                  height: '1.5px',
+                  backgroundColor: 'var(--accent-gold)',
+                  margin: '0 auto 24px',
+                }} />
+
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: 'clamp(1.05rem, 1.8vw, 1.25rem)',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.7,
+                  maxWidth: '720px',
+                  margin: '0 auto 32px',
+                }}>
+                  Adavus, alarippu to varnam, abhinaya and nattuvangam, taught in graded years.
+                </p>
+
+                {/* Highlights Strip */}
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '14.5px',
+                    color: 'var(--accent-gold-light)',
+                    lineHeight: 1.6,
+                    letterSpacing: '0.04em',
+                    marginBottom: '44px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '16px',
+                  }}
+                  className="highlights-wrapper"
+                >
+                  <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Weekly Practical + Theory</span>
+                  <span className="bullet-point" style={{ color: 'var(--accent-gold)' }}>✧</span>
+                  <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Annual Sabha Performance</span>
+                  <span className="bullet-point" style={{ color: 'var(--accent-gold)' }}>✧</span>
+                  <span style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>Arangetram Guidance</span>
+                </div>
+
+                <button
+                  onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="btn-primary"
+                  style={{
+                    padding: '16px 48px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ENQUIRE NOW
+                </button>
+              </div>
             </div>
-          </div>
-        </FadeInScale>
+          </TiltCard>
+        </FadeIn>
 
         {/* Secondary Courses Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '24px',
-        }}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '24px',
+          }}
           className="secondary-courses-grid"
         >
           {secondaryCourses.map((course, i) => (
-            <FadeIn key={course.title} delay={0.2 + (i * 0.1)}>
-              <div
-                style={{
-                  backgroundColor: 'var(--cream)',
-                  border: '1px solid rgba(214, 168, 79, 0.2)',
-                  padding: '40px 32px',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default',
-                  height: '100%',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = 'var(--gold)'
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(50, 20, 63, 0.05)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'rgba(214, 168, 79, 0.2)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-              >
-                <div style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '11px', fontWeight: 600, letterSpacing: '0.2em',
-                  color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '16px',
-                }}>{course.level}</div>
-                <h3 style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: 'clamp(1.8rem, 3vw, 2.2rem)', fontWeight: 400,
-                  color: 'var(--deep-purple)', marginBottom: '16px',
-                }}>{course.title}</h3>
-                <div style={{
-                  width: '30px', height: '1.5px',
-                  backgroundColor: 'var(--gold)',
-                  marginBottom: '20px',
-                  opacity: 0.5,
-                }} />
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '16px', color: 'var(--luxury-purple)',
-                  lineHeight: 1.7, marginBottom: '24px',
-                }}>{course.desc}</p>
-                <p style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: '14px', color: 'var(--deep-purple)',
-                  lineHeight: 1.6, letterSpacing: '0.01em', fontWeight: 500
-                }}>{course.details}</p>
-              </div>
+            <FadeIn key={course.title} delay={0.25 + (i * 0.1)}>
+              <TiltCard style={{ height: '100%' }}>
+                <div
+                  style={{
+                    backgroundColor: '#301326',
+                    border: '1px solid rgba(212, 175, 101, 0.3)',
+                    borderRadius: '2px',
+                    padding: 'clamp(32px, 4vw, 44px) clamp(24px, 3vw, 34px)',
+                    boxShadow: '0 12px 35px rgba(0, 0, 0, 0.35)',
+                    position: 'relative',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'border-color 0.35s ease, box-shadow 0.35s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.7)'
+                    e.currentTarget.style.boxShadow = '0 18px 45px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 101, 0.15)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.3)'
+                    e.currentTarget.style.boxShadow = '0 12px 35px rgba(0, 0, 0, 0.35)'
+                  }}
+                >
+                  {/* Level Tag */}
+                  <div style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    letterSpacing: '0.2em',
+                    color: 'var(--accent-gold)',
+                    textTransform: 'uppercase',
+                    marginBottom: '16px',
+                  }}>
+                    {course.level}
+                  </div>
+
+                  <h3 style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: 'clamp(1.9rem, 2.5vw, 2.3rem)',
+                    fontWeight: 400,
+                    color: '#FFF4E5',
+                    marginBottom: '14px',
+                    lineHeight: 1.2,
+                  }}>
+                    {course.title}
+                  </h3>
+
+                  <div style={{
+                    width: '32px',
+                    height: '1.5px',
+                    backgroundColor: 'var(--accent-gold)',
+                    marginBottom: '20px',
+                    opacity: 0.6,
+                  }} />
+
+                  <p style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '15.5px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.7,
+                    marginBottom: '24px',
+                    flexGrow: 1,
+                  }}>
+                    {course.desc}
+                  </p>
+
+                  <div style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: '13.5px',
+                    color: 'var(--accent-gold-light)',
+                    lineHeight: 1.55,
+                    borderTop: '1px solid rgba(212, 175, 101, 0.18)',
+                    paddingTop: '18px',
+                    fontWeight: 500,
+                  }}>
+                    {course.details}
+                  </div>
+                </div>
+              </TiltCard>
             </FadeIn>
           ))}
         </div>

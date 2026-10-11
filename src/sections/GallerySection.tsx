@@ -44,17 +44,16 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, delay }}>
+    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}>
       {children}
     </motion.div>
   )
 }
 
-// Fallback image component — shows placeholder when image URL fails
 function GalleryImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false);
   return errored ? (
-    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--deep-purple)', color: 'var(--champagne)', fontSize: '13px', fontFamily: 'var(--font-body)', textAlign: 'center', padding: '8px' }}>
+    <div style={{ width: '100%', minHeight: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#301326', color: 'var(--accent-gold-light)', fontSize: '13px', fontFamily: 'var(--font-body)', textAlign: 'center', padding: '16px' }}>
       Image unavailable
     </div>
   ) : (
@@ -92,7 +91,6 @@ export default function GallerySection() {
 
   useEffect(() => {
     loadGalleryItems()
-    // Reload when window regains focus (e.g., admin just added an image)
     const handleFocus = () => loadGalleryItems()
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
@@ -134,10 +132,11 @@ export default function GallerySection() {
     <section
       id="gallery"
       style={{
-        backgroundColor: 'var(--cream)',
-        padding: '120px 0 100px',
+        backgroundColor: '#260D20', // Rich secondary plum background
+        padding: 'clamp(100px, 12vw, 150px) 0 100px',
         position: 'relative',
         overflow: 'hidden',
+        borderBottom: '1px solid rgba(212, 175, 101, 0.2)',
       }}
     >
       <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 clamp(16px, 4vw, 48px)', marginBottom: '60px' }}>
@@ -145,68 +144,90 @@ export default function GallerySection() {
           <div style={{ textAlign: 'center' }}>
             <div style={{
               fontFamily: "var(--font-body)",
-              fontSize: '12px', fontWeight: 600, letterSpacing: '0.25em',
-              color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '16px',
-            }}>✧ EVENT GALLERY</div>
+              fontSize: '12px',
+              fontWeight: 600,
+              letterSpacing: '0.25em',
+              color: 'var(--accent-gold)',
+              textTransform: 'uppercase',
+              marginBottom: '18px',
+            }}>
+              ✧ EVENT GALLERY ✧
+            </div>
             <h2 style={{
               fontFamily: "var(--font-display)",
-              fontSize: 'clamp(3rem, 5vw, 4.5rem)', fontWeight: 400,
-              color: 'var(--deep-purple)', marginBottom: '20px',
-            }}>Glimpses of Artistry</h2>
+              fontSize: 'clamp(2.8rem, 5.5vw, 5rem)',
+              fontWeight: 400,
+              color: 'var(--text-primary)',
+              marginBottom: '20px',
+              lineHeight: 1.15,
+            }}>
+              Glimpses of Artistry
+            </h2>
             <div style={{
-              width: '60px', height: '1.5px',
-              background: 'var(--gold)',
+              width: '70px',
+              height: '1.5px',
+              background: 'linear-gradient(90deg, transparent, var(--accent-gold), transparent)',
               margin: '0 auto 24px',
             }} />
             <p style={{
-              fontFamily: "var(--font-body)",
-              fontSize: '18px', fontStyle: 'italic',
-              color: 'var(--luxury-purple)',
-              marginBottom: '40px',
+              fontFamily: "var(--font-display)",
+              fontSize: 'clamp(1.2rem, 2vw, 1.55rem)',
+              fontStyle: 'italic',
+              color: 'var(--text-secondary)',
+              marginBottom: '44px',
             }}>
-              Photographs from recitals, temple offerings and arangetrams.
+              Photographs from recitals, temple offerings, and arangetrams.
             </p>
 
             {/* Category Filters */}
             <div style={{
-              display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap',
-              marginBottom: '40px'
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginBottom: '48px',
             }}>
-              {GALLERY_CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    fontFamily: "var(--font-body)",
-                    fontSize: 'clamp(11px, 2vw, 13px)', fontWeight: 600, letterSpacing: '0.15em',
-                    color: activeCategory === cat ? 'var(--deep-purple)' : 'var(--luxury-purple)',
-                    textTransform: 'uppercase',
-                    cursor: 'pointer',
-                    padding: '8px 12px',
-                    borderBottom: activeCategory === cat ? '2px solid var(--gold)' : '2px solid transparent',
-                    transition: 'all 0.3s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
+              {GALLERY_CATEGORIES.map(cat => {
+                const isActive = activeCategory === cat
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    style={{
+                      background: isActive ? 'rgba(212, 175, 101, 0.15)' : 'rgba(48, 19, 38, 0.5)',
+                      border: isActive ? '1px solid var(--accent-gold)' : '1px solid rgba(212, 175, 101, 0.25)',
+                      borderRadius: '2px',
+                      fontFamily: "var(--font-body)",
+                      fontSize: 'clamp(11px, 1.4vw, 12.5px)',
+                      fontWeight: 600,
+                      letterSpacing: '0.18em',
+                      color: isActive ? 'var(--accent-gold-light)' : 'var(--text-secondary)',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      padding: '10px 20px',
+                      transition: 'all 0.3s ease',
+                      whiteSpace: 'nowrap',
+                      boxShadow: isActive ? '0 0 16px rgba(212, 175, 101, 0.2)' : 'none',
+                    }}
+                  >
+                    {cat}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </FadeIn>
 
         {/* Loading state */}
         {!dbLoaded && (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--luxury-purple)', fontFamily: "var(--font-body)" }}>
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)', fontFamily: "var(--font-body)" }}>
             Loading gallery...
           </div>
         )}
 
         {/* Masonry Editorial Grid */}
         {filteredItems.length === 0 && dbLoaded ? (
-          <div style={{ width: '100%', textAlign: 'center', padding: '100px 0', color: 'var(--luxury-purple)', fontFamily: "var(--font-body)" }}>
+          <div style={{ width: '100%', textAlign: 'center', padding: '100px 0', color: 'var(--text-secondary)', fontFamily: "var(--font-body)" }}>
             No images found in this category.
           </div>
         ) : (
@@ -215,18 +236,21 @@ export default function GallerySection() {
               <motion.div
                 key={item.id}
                 className="gallery-item"
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.6, delay: (i % 5) * 0.1 }}
+                transition={{ duration: 0.65, delay: (i % 4) * 0.1 }}
                 onClick={() => openLightbox(i)}
               >
                 <div className="gallery-image-wrapper">
                   <GalleryImage src={item.imageUrl} alt={item.title} />
                   <div className="gallery-overlay">
                     <div className="gallery-content">
-                      <span className="gallery-category">{item.category}</span>
+                      <span className="gallery-category">✦ {item.category}</span>
                       <h3 className="gallery-title">{item.title}</h3>
+                      {item.description && (
+                        <p className="gallery-desc">{item.description}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -245,92 +269,202 @@ export default function GallerySection() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              backgroundColor: 'rgba(20, 10, 30, 0.95)',
-              backdropFilter: 'blur(10px)',
-              display: 'flex', flexDirection: 'column',
-              justifyContent: 'center', alignItems: 'center',
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              backgroundColor: 'rgba(22, 8, 17, 0.96)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
             onClick={closeLightbox}
           >
-            {/* Top Bar */}
+            {/* Top Close Bar */}
             <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0,
-              padding: '16px 24px', display: 'flex', justifyContent: 'flex-end',
+              position: 'absolute',
+              top: '20px',
+              right: '28px',
               zIndex: 10000,
             }}>
               <button
                 onClick={(e) => { e.stopPropagation(); closeLightbox() }}
+                aria-label="Close Lightbox"
                 style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--champagne)', fontSize: '32px', lineHeight: 1,
-                  padding: '8px', transition: 'color 0.3s ease'
+                  background: 'rgba(48, 19, 38, 0.7)',
+                  border: '1px solid var(--accent-gold)',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  color: 'var(--accent-gold-light)',
+                  width: '44px',
+                  height: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  lineHeight: 1,
+                  transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                onMouseLeave={e => e.currentTarget.style.color = 'var(--champagne)'}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-gold)'
+                  e.currentTarget.style.color = '#160811'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'rgba(48, 19, 38, 0.7)'
+                  e.currentTarget.style.color = 'var(--accent-gold-light)'
+                }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Navigation */}
-            <button onClick={prevImage} className="lightbox-nav left" style={{
-              position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
-              background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
-              width: '50px', height: '50px', cursor: 'pointer', zIndex: 10000,
-              color: 'var(--champagne)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.3s ease, color 0.3s ease'
-            }}>
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevImage}
+              aria-label="Previous Image"
+              className="lightbox-nav left"
+              style={{
+                position: 'absolute',
+                left: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(48, 19, 38, 0.8)',
+                border: '1px solid var(--accent-gold)',
+                borderRadius: '50%',
+                width: '52px',
+                height: '52px',
+                cursor: 'pointer',
+                zIndex: 10000,
+                color: 'var(--accent-gold)',
+                fontSize: '22px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.backgroundColor = 'var(--accent-gold)'
+                e.currentTarget.style.color = '#160811'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.backgroundColor = 'rgba(48, 19, 38, 0.8)'
+                e.currentTarget.style.color = 'var(--accent-gold)'
+              }}
+            >
               ←
             </button>
-            <button onClick={nextImage} className="lightbox-nav right" style={{
-              position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-              background: 'rgba(50, 20, 63, 0.5)', border: '1px solid var(--gold)', borderRadius: '50%',
-              width: '50px', height: '50px', cursor: 'pointer', zIndex: 10000,
-              color: 'var(--champagne)', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.3s ease, color 0.3s ease'
-            }}>
+            <button
+              onClick={nextImage}
+              aria-label="Next Image"
+              className="lightbox-nav right"
+              style={{
+                position: 'absolute',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(48, 19, 38, 0.8)',
+                border: '1px solid var(--accent-gold)',
+                borderRadius: '50%',
+                width: '52px',
+                height: '52px',
+                cursor: 'pointer',
+                zIndex: 10000,
+                color: 'var(--accent-gold)',
+                fontSize: '22px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.backgroundColor = 'var(--accent-gold)'
+                e.currentTarget.style.color = '#160811'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.backgroundColor = 'rgba(48, 19, 38, 0.8)'
+                e.currentTarget.style.color = 'var(--accent-gold)'
+              }}
+            >
               →
             </button>
 
-            {/* Main Image */}
+            {/* Main Lightbox Image */}
             <motion.div
               key={currentImageIndex}
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.35 }}
               style={{
-                width: '100%', height: '75vh', padding: '0 70px',
-                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                width: '100%',
+                height: '75vh',
+                padding: '0 80px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
               onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={filteredItems[currentImageIndex].imageUrl}
                 alt={filteredItems[currentImageIndex].title}
-                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  borderRadius: '3px',
+                  border: '1px solid rgba(212, 175, 101, 0.35)',
+                  boxShadow: '0 25px 70px rgba(0,0,0,0.8), 0 0 35px rgba(212, 175, 101, 0.15)',
+                }}
               />
             </motion.div>
 
-            {/* Image Metadata */}
-            <div style={{
-              position: 'absolute', bottom: '24px', left: 0, right: 0,
-              textAlign: 'center', padding: '0 24px',
-            }} onClick={(e) => e.stopPropagation()}>
+            {/* Image Metadata Caption */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '24px',
+                left: 0,
+                right: 0,
+                textAlign: 'center',
+                padding: '0 24px',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div style={{
                 fontFamily: "var(--font-body)",
-                fontSize: '12px', fontWeight: 600, letterSpacing: '0.2em',
-                color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '8px',
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.25em',
+                color: 'var(--accent-gold)',
+                textTransform: 'uppercase',
+                marginBottom: '6px',
               }}>
-                {filteredItems[currentImageIndex].category}
+                ✦ {filteredItems[currentImageIndex].category}
               </div>
               <h3 style={{
                 fontFamily: "var(--font-display)",
-                fontSize: 'clamp(18px, 3vw, 28px)', fontWeight: 400,
-                color: 'var(--cream)', margin: 0,
+                fontSize: 'clamp(20px, 3vw, 30px)',
+                fontWeight: 400,
+                color: 'var(--text-primary)',
+                margin: '0 0 6px',
               }}>
                 {filteredItems[currentImageIndex].title}
               </h3>
+              {filteredItems[currentImageIndex].description && (
+                <p style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: '14.5px',
+                  color: 'var(--text-secondary)',
+                  margin: 0,
+                  maxWidth: '600px',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}>
+                  {filteredItems[currentImageIndex].description}
+                </p>
+              )}
             </div>
           </motion.div>
         )}
@@ -339,13 +473,13 @@ export default function GallerySection() {
       <style>{`
         .gallery-masonry {
           column-count: 3;
-          column-gap: 20px;
+          column-gap: 24px;
           width: 100%;
         }
 
         .gallery-item {
           break-inside: avoid;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
           width: 100%;
           cursor: pointer;
           position: relative;
@@ -356,10 +490,10 @@ export default function GallerySection() {
           position: relative;
           width: 100%;
           overflow: hidden;
-          background-color: var(--deep-purple);
-          border: 1px solid rgba(214, 168, 79, 0.2);
-          border-radius: 4px;
-          box-shadow: 0 8px 30px rgba(20, 10, 30, 0.08);
+          background-color: #301326;
+          border: 1px solid rgba(212, 175, 101, 0.3);
+          border-radius: 3px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
@@ -367,23 +501,23 @@ export default function GallerySection() {
           width: 100%;
           height: auto;
           display: block;
-          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+          filter: contrast(1.05) saturate(0.95);
         }
 
         .gallery-overlay {
           position: absolute;
           inset: 0;
-          background: rgba(50, 20, 63, 0.8);
+          background: linear-gradient(to top, rgba(22, 8, 17, 0.95) 0%, rgba(38, 13, 32, 0.6) 50%, transparent 100%);
           opacity: 0;
           transition: opacity 0.4s ease;
           display: flex;
           align-items: flex-end;
           padding: 24px;
-          border: 1px solid transparent;
         }
 
         .gallery-content {
-          transform: translateY(20px);
+          transform: translateY(16px);
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -391,27 +525,35 @@ export default function GallerySection() {
           display: block;
           font-family: var(--font-body);
           font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.2em;
-          color: var(--gold);
+          fontWeight: 600;
+          letter-spacing: 0.22em;
+          color: var(--accent-gold);
           text-transform: uppercase;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
         }
 
         .gallery-title {
           font-family: var(--font-display);
-          font-size: clamp(18px, 3vw, 28px);
-          color: var(--cream);
+          font-size: clamp(20px, 2.5vw, 26px);
+          color: var(--text-primary);
           font-weight: 400;
+          margin: 0 0 4px;
+          line-height: 1.25;
+        }
+
+        .gallery-desc {
+          font-family: var(--font-body);
+          font-size: 13.5px;
+          color: var(--text-secondary);
           margin: 0;
-          line-height: 1.2;
+          line-height: 1.5;
         }
 
         .gallery-item:hover .gallery-image-wrapper {
-          border-color: var(--gold);
-          box-shadow: 0 12px 40px rgba(50, 20, 63, 0.15);
+          border-color: rgba(212, 175, 101, 0.7);
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 175, 101, 0.18);
         }
-        .gallery-item:hover img { transform: scale(1.02); }
+        .gallery-item:hover img { transform: scale(1.03); filter: contrast(1.08) saturate(1); }
         .gallery-item:hover .gallery-overlay { opacity: 1; }
         .gallery-item:hover .gallery-content { transform: translateY(0); }
 
@@ -422,10 +564,10 @@ export default function GallerySection() {
         @media (max-width: 640px) {
           .gallery-masonry {
             column-count: 1;
-            column-gap: 12px;
+            column-gap: 16px;
           }
-          .gallery-item { margin-bottom: 12px; }
-          .lightbox-nav { width: 40px !important; height: 40px !important; font-size: 16px !important; }
+          .gallery-item { margin-bottom: 16px; }
+          .lightbox-nav { width: 44px !important; height: 44px !important; font-size: 18px !important; }
         }
       `}</style>
     </section>

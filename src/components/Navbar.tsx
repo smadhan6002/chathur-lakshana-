@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import logoImg from '../img/LOGO.png'
 
 const navLinks = [
   { label: 'ACADEMY', href: '#academy' },
@@ -36,9 +37,10 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 100,
-        backgroundColor: scrolled ? 'rgba(50, 20, 63, 0.95)' : 'transparent', // deep-purple when scrolled
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(214, 168, 79, 0.2)' : '1px solid transparent',
+        backgroundColor: scrolled ? 'rgba(22, 8, 17, 0.94)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(212, 175, 101, 0.25)' : '1px solid transparent',
         transition: 'all 0.4s ease',
       }}
     >
@@ -47,7 +49,7 @@ export default function Navbar() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 clamp(16px, 4vw, 48px)',
-        height: scrolled ? '64px' : '88px',
+        height: scrolled ? '68px' : '92px',
         maxWidth: '100%',
         transition: 'height 0.4s ease',
         boxSizing: 'border-box',
@@ -55,39 +57,42 @@ export default function Navbar() {
         {/* Logo */}
         <a href="#" onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           style={{ display: 'flex', alignItems: 'center', gap: '14px', textDecoration: 'none' }}>
-          <div style={{
-            width: '42px', height: '42px',
-            border: '1px solid var(--color-accent)',
-            borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'var(--color-accent)',
-            fontFamily: "var(--font-display)",
-            fontSize: '18px',
-            fontWeight: 500,
-            letterSpacing: '0.05em',
-          }}>CL</div>
+          <img
+            src={logoImg}
+            alt="Chathur Lakshana Academy Logo"
+            style={{
+              height: scrolled ? '46px' : '58px',
+              width: 'auto',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              display: 'block',
+              transition: 'height 0.4s ease',
+              filter: 'drop-shadow(0 0 10px rgba(212, 175, 101, 0.35))',
+            }}
+          />
           <div>
             <div style={{
               fontFamily: "var(--font-display)",
-              fontSize: '16px',
+              fontSize: '17px',
               fontWeight: 600,
               letterSpacing: '0.15em',
-              color: 'var(--cream)',
+              color: 'var(--text-primary)',
               textTransform: 'uppercase',
+              lineHeight: 1.2,
             }}>CHATHUR LAKSHANA</div>
             <div style={{
               fontFamily: "var(--font-body)",
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              color: 'var(--color-accent)',
+              fontSize: '10.5px',
+              fontWeight: 600,
+              letterSpacing: '0.22em',
+              color: 'var(--accent-gold)',
               textTransform: 'uppercase',
             }}>ACADEMY OF FINE ARTS</div>
           </div>
         </a>
 
         {/* Desktop Nav */}
-        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
           {navLinks.map(link => (
             <button
               key={link.label}
@@ -98,20 +103,20 @@ export default function Navbar() {
                 borderBottom: '2px solid transparent',
                 cursor: 'pointer',
                 fontFamily: "var(--font-body)",
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: 500,
-                letterSpacing: '0.15em',
-                color: 'var(--cream)',
+                letterSpacing: '0.18em',
+                color: 'var(--text-secondary)',
                 textTransform: 'uppercase',
                 transition: 'all 0.3s ease',
                 padding: '4px 0',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--color-accent)';
-                e.currentTarget.style.borderBottom = '2px solid var(--color-accent)';
+                e.currentTarget.style.color = 'var(--accent-gold-light)';
+                e.currentTarget.style.borderBottom = '2px solid var(--accent-gold)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.color = 'var(--cream)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
                 e.currentTarget.style.borderBottom = '2px solid transparent';
               }}
             >
@@ -122,14 +127,9 @@ export default function Navbar() {
             onClick={() => scrollTo('#contact')}
             className="btn-primary"
             style={{
-              fontFamily: "var(--font-body)",
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
               padding: '12px 28px',
+              fontSize: '12.5px',
               cursor: 'pointer',
-              color: 'var(--deep-purple)', // Purple text on gold button
             }}
           >
             ENROL NOW
@@ -139,21 +139,23 @@ export default function Navbar() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle navigation menu"
           style={{
             display: 'none',
-            background: 'none',
-            border: '1px solid rgba(214, 168, 79, 0.4)',
+            background: 'rgba(48, 19, 38, 0.6)',
+            border: '1px solid rgba(212, 175, 101, 0.4)',
             cursor: 'pointer',
-            width: '40px', height: '40px',
+            width: '42px', height: '42px',
             alignItems: 'center', justifyContent: 'center',
             flexDirection: 'column', gap: '5px',
             padding: '8px',
+            borderRadius: '2px',
           }}
           className="mobile-menu-btn"
         >
-          <span style={{ display: 'block', width: '18px', height: '1.5px', backgroundColor: 'var(--cream)', transition: 'transform 0.3s ease', transform: mobileOpen ? 'rotate(45deg) translate(4px, 4px)' : 'none' }} />
-          <span style={{ display: 'block', width: '18px', height: '1.5px', backgroundColor: 'var(--cream)', opacity: mobileOpen ? 0 : 1, transition: 'opacity 0.3s ease' }} />
-          <span style={{ display: 'block', width: '18px', height: '1.5px', backgroundColor: 'var(--cream)', transition: 'transform 0.3s ease', transform: mobileOpen ? 'rotate(-45deg) translate(4px, -4px)' : 'none' }} />
+          <span style={{ display: 'block', width: '20px', height: '1.5px', backgroundColor: 'var(--accent-gold)', transition: 'transform 0.3s ease', transform: mobileOpen ? 'rotate(45deg) translate(4px, 5px)' : 'none' }} />
+          <span style={{ display: 'block', width: '20px', height: '1.5px', backgroundColor: 'var(--accent-gold)', opacity: mobileOpen ? 0 : 1, transition: 'opacity 0.3s ease' }} />
+          <span style={{ display: 'block', width: '20px', height: '1.5px', backgroundColor: 'var(--accent-gold)', transition: 'transform 0.3s ease', transform: mobileOpen ? 'rotate(-45deg) translate(4px, -5px)' : 'none' }} />
         </button>
       </div>
 
@@ -166,10 +168,11 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             style={{
-              backgroundColor: 'var(--deep-purple)',
-              borderTop: '1px solid rgba(214, 168, 79, 0.2)',
+              backgroundColor: 'rgba(22, 8, 17, 0.98)',
+              backdropFilter: 'blur(16px)',
+              borderTop: '1px solid rgba(212, 175, 101, 0.25)',
               overflow: 'hidden',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              boxShadow: '0 16px 36px rgba(0,0,0,0.7)',
             }}
           >
             {navLinks.map(link => (
@@ -180,7 +183,7 @@ export default function Navbar() {
                   display: 'block',
                   width: '100%',
                   textAlign: 'left',
-                  padding: '16px 24px',
+                  padding: '16px 28px',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -188,12 +191,21 @@ export default function Navbar() {
                   fontSize: '13px',
                   fontWeight: 500,
                   letterSpacing: '0.15em',
-                  color: 'var(--cream)',
+                  color: 'var(--text-primary)',
                   textTransform: 'uppercase',
-                  borderBottom: '1px solid rgba(214, 168, 79, 0.1)',
+                  borderBottom: '1px solid rgba(212, 175, 101, 0.1)',
                 }}
               >{link.label}</button>
             ))}
+            <div style={{ padding: '16px 28px' }}>
+              <button
+                onClick={() => scrollTo('#contact')}
+                className="btn-primary"
+                style={{ width: '100%', padding: '14px', fontSize: '13px' }}
+              >
+                ENROL NOW
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
