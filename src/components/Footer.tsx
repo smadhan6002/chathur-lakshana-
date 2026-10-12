@@ -45,12 +45,30 @@ export default function Footer() {
             }}>ACADEMY OF FINE ARTS</div>
             <p style={{
               fontFamily: "var(--font-body)",
-              fontSize: '15px', fontStyle: 'italic',
+              fontSize: '14.5px', fontStyle: 'italic',
               color: 'var(--text-secondary)',
-              lineHeight: 1.8, maxWidth: '340px', margin: 0,
+              lineHeight: 1.7, maxWidth: '340px', margin: '0 0 14px',
             }}>
               Preserving tradition, inspiring excellence, and celebrating Bharatanatyam from the heart of Mylapore, Chennai.
             </p>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: '12px',
+              color: 'var(--accent-gold-light)',
+              letterSpacing: '0.05em',
+            }}>
+              <strong>Founder-Director:</strong> Dr. Radhika Vairavelavan
+            </div>
+            <div style={{
+              fontFamily: "var(--font-body)",
+              fontSize: '12px',
+              color: 'var(--accent-gold)',
+              marginTop: '6px',
+            }}>
+              <a href="tel:+919962260779" style={{ color: 'inherit', textDecoration: 'none' }}>
+                ✦ +91 99622 60779
+              </a>
+            </div>
           </div>
 
           {/* Academy Navigation Column */}

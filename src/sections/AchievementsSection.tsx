@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { Award, Sparkles } from 'lucide-react'
 
 interface StatItem {
   target: number
@@ -7,6 +8,7 @@ interface StatItem {
   label: string
 }
 
+// Existing displayed metrics preserved per Phase 10 instructions; flagged for client confirmation in audit report
 const stats: StatItem[] = [
   { target: 15, suffix: '+', label: 'YEARS OF TEACHING' },
   { target: 300, suffix: '+', label: 'STUDENTS TRAINED' },
@@ -14,6 +16,61 @@ const stats: StatItem[] = [
   { target: 25, suffix: '+', label: 'ARANGETRAMS GUIDED' },
 ]
 
+// Verified Awards and Recognitions from Client Document (Phase 9)
+const awards = [
+  {
+    title: 'Vani Kala Nipuna for Bharatanatyam',
+    organization: 'Sri Thyaga Brahma Gana Sabha',
+    year: '2025–2026',
+    highlight: true,
+  },
+  {
+    title: 'Best Humanity Award 2024',
+    organization: 'International Achievers Foundation',
+    year: 'November 23, 2024',
+  },
+  {
+    title: 'Abhyasa Nritya Vardhani',
+    organization: 'Abhyasa Academy of Classical Dance, Coimbatore',
+    year: 'October 2023',
+  },
+  {
+    title: 'Golden Achiever Award',
+    organization: 'International Achievers Foundation',
+    year: 'September 25, 2022',
+  },
+  {
+    title: 'Best Bharatanatyam Artist for 2021',
+    organization: "People's Forum of India",
+    year: '2021',
+  },
+  {
+    title: 'Natya Chemmal',
+    organization: 'Sanganath Chemmal Kayal Shaik Muhammad Trust',
+  },
+  {
+    title: 'Natya Kalavani',
+    organization: 'All India All Press and Media Reporters Association',
+  },
+  {
+    title: 'Sangeetha Bhakthi Prachara Samman',
+    organization: 'Tapas Cultural Foundation',
+  },
+  {
+    title: 'Vasanthalakshmi Narasimhachari & Narasimhachari Endowment Award',
+    organization: 'Natyarangam (Award for Junior Dancer)',
+  },
+  {
+    title: 'Rashtrapathi Puraskar',
+    organization: 'Bharath Scouts and Guides Movement',
+  },
+  {
+    title: 'Best Out Going Student',
+    organization: 'Kalakshetra College of Fine Arts',
+  },
+]
+
+// Existing testimonials preserved per Phase 12; verified to address Radhika ma'am
 const testimonials = [
   {
     quote: "Radhika ma'am teaches character before choreography. My daughter walks differently since she joined.",
@@ -67,7 +124,6 @@ function AnimatedCounter({
   useEffect(() => {
     if (!inView || hasAnimated.current) return
 
-    // If user prefers reduced motion, set final value immediately
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setCount(target)
       hasAnimated.current = true
@@ -90,7 +146,6 @@ function AnimatedCounter({
       }
 
       const progress = Math.min((elapsed - delayMs) / (duration * 1000), 1)
-      // Ease-out cubic: starts with momentum and settles gracefully
       const easeOut = 1 - Math.pow(1 - progress, 3)
       const current = Math.min(target, Math.floor(easeOut * target))
 
@@ -162,7 +217,7 @@ export default function AchievementsSection() {
                 marginBottom: '16px',
               }}
             >
-              ✧ RECOGNITION &amp; HERITAGE ✧
+              ✧ AWARDS &amp; RECOGNITION ✧
             </div>
             <h2
               style={{
@@ -174,7 +229,7 @@ export default function AchievementsSection() {
                 lineHeight: 1.15,
               }}
             >
-              Achievements &amp; Voices
+              Honours, Recognition &amp; Voices
             </h2>
             <div
               style={{
@@ -192,7 +247,7 @@ export default function AchievementsSection() {
                 color: 'var(--text-secondary)',
               }}
             >
-              Measured not in trophies, but in artistes who keep dancing.
+              A distinguished legacy of artistic mastery, cultural leadership, and academic distinction.
             </p>
           </div>
         </FadeIn>
@@ -204,7 +259,7 @@ export default function AchievementsSection() {
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '24px',
-            marginBottom: 'clamp(56px, 8vw, 80px)',
+            marginBottom: 'clamp(64px, 8vw, 96px)',
           }}
           className="stats-grid"
         >
@@ -239,7 +294,6 @@ export default function AchievementsSection() {
                 e.currentTarget.style.boxShadow = '0 12px 35px rgba(0, 0, 0, 0.4)'
               }}
             >
-              {/* Subtle top corner gold tick */}
               <div
                 style={{
                   position: 'absolute',
@@ -287,6 +341,161 @@ export default function AchievementsSection() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Verified Awards & Recognitions Grid (Phase 9) */}
+        <FadeIn delay={0.2}>
+          <div style={{ marginBottom: 'clamp(64px, 8vw, 96px)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  letterSpacing: '0.22em',
+                  color: 'var(--accent-gold)',
+                  textTransform: 'uppercase',
+                  marginBottom: '10px',
+                }}
+              >
+                <Award size={14} />
+                <span>Prestigious Accolades</span>
+              </div>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(26px, 4vw, 36px)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 400,
+                  margin: 0,
+                }}
+              >
+                Awards &amp; Felicitations Conferred
+              </h3>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+                gap: '20px',
+              }}
+            >
+              {awards.map((a) => (
+                <div
+                  key={a.title}
+                  style={{
+                    backgroundColor: '#301326',
+                    border: a.highlight
+                      ? '1.5px solid var(--accent-gold)'
+                      : '1px solid rgba(212, 175, 101, 0.28)',
+                    borderRadius: '2px',
+                    padding: '24px 22px',
+                    position: 'relative',
+                    boxShadow: a.highlight
+                      ? '0 12px 35px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,101,0.15)'
+                      : '0 10px 25px rgba(0, 0, 0, 0.35)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)'
+                    e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.7)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.borderColor = a.highlight
+                      ? 'var(--accent-gold)'
+                      : 'rgba(212, 175, 101, 0.28)'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sparkles size={14} />
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '10.5px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600 }}>
+                        Recognition
+                      </span>
+                    </div>
+                    {a.year && (
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          letterSpacing: '0.1em',
+                          color: 'var(--accent-gold-light)',
+                          background: 'rgba(212, 175, 101, 0.12)',
+                          padding: '2px 8px',
+                          borderRadius: '2px',
+                        }}
+                      >
+                        {a.year}
+                      </span>
+                    )}
+                  </div>
+
+                  <h4
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '20px',
+                      color: 'var(--text-primary)',
+                      margin: '0 0 8px',
+                      fontWeight: 500,
+                      lineHeight: 1.25,
+                    }}
+                  >
+                    {a.title}
+                  </h4>
+
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '13px',
+                      color: 'var(--accent-gold-light)',
+                      margin: 0,
+                      marginTop: 'auto',
+                      lineHeight: 1.5,
+                      fontWeight: 400,
+                    }}
+                  >
+                    {a.organization}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Testimonials Header */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.22em',
+              color: 'var(--accent-gold)',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+            }}
+          >
+            ✧ STUDENT &amp; COMMUNITY VOICES ✧
+          </div>
+          <h3
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(26px, 4vw, 36px)',
+              color: 'var(--text-primary)',
+              fontWeight: 400,
+              margin: 0,
+            }}
+          >
+            Words from Parents &amp; Artistes
+          </h3>
         </div>
 
         {/* Testimonials Grid */}

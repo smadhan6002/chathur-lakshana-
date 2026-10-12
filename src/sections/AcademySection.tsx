@@ -2,18 +2,22 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import academyImage from '../img/imp 2.jpeg'
 
-const values = [
+const objectives = [
   {
-    label: 'TRADITION',
-    text: 'Rooted in the Pandanallur and Vazhuvoor bani — authentic, uncompromised and handed down with reverence.',
+    label: 'SPREADING INDIAN CULTURE',
+    text: 'Dedicated to spreading the rich heritage, spiritual depth, and timeless wisdom of Indian culture through the authentic language of classical Bharatanatyam.',
   },
   {
-    label: 'VISION',
-    text: 'An academy where every student becomes both a complete artiste and a confident individual.',
+    label: 'PRESERVING TRADITION FOR POSTERITY',
+    text: 'Safeguarding classical Indian traditions and the sacred Guru-Shishya parampara with devotion and uncompromising artistic integrity for future generations.',
   },
   {
-    label: 'PHILOSOPHY',
-    text: 'Nurturing artistic excellence alongside personality development — the stage as a school of character.',
+    label: 'ART AS A KNOWLEDGE SYSTEM',
+    text: 'Promoting art with beauty as a profound, structured knowledge system integrating movement, philosophy, literature, and aesthetic inquiry.',
+  },
+  {
+    label: 'WELL-BEING THROUGH DANCE',
+    text: 'Fostering general physical, mental, and spiritual well-being through the rigorous and uplifting discipline of classical dance.',
   },
 ]
 
@@ -182,9 +186,9 @@ export default function AcademySection() {
             </div>
           </FadeIn>
 
-          {/* Right: Pillars & Values Cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-            {values.map((v, i) => (
+          {/* Right: Core Academy Objectives Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {objectives.map((v, i) => (
               <FadeIn key={v.label} delay={0.25 + i * 0.12}>
                 <div
                   style={{

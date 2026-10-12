@@ -22,7 +22,7 @@ interface EnquiryModalProps {
   onClose: () => void
 }
 
-const ADMIN_WHATSAPP_NUMBER = '919840000000'
+const ADMIN_WHATSAPP_NUMBER = '919962260779'
 
 export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', onClose }: EnquiryModalProps) {
   const [name, setName] = useState('')
@@ -457,7 +457,7 @@ Submitted via Chathur Lakshana Academy website.`
                           setPhone(e.target.value)
                           if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }))
                         }}
-                        placeholder="e.g. +91 98400 12345"
+                        placeholder="e.g. +91 99622 60779"
                         style={{
                           width: '100%',
                           backgroundColor: 'rgba(22, 8, 17, 0.75)',

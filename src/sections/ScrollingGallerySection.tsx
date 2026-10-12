@@ -12,7 +12,7 @@ const imageModules = import.meta.glob<{ default: string }>(
 // Extract sorted image URLs for consistent ordering
 const galleryImages: string[] = Object.entries(imageModules)
   .sort(([pathA], [pathB]) => pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: 'base' }))
-  .map(([_, module]) => module.default)
+  .map(([, module]) => module.default)
 
 export default function ScrollingGallerySection() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)

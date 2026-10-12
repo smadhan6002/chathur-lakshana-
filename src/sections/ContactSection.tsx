@@ -36,7 +36,7 @@ const labelStyle: React.CSSProperties = {
   marginBottom: '8px',
 }
 
-const ADMIN_WHATSAPP_NUMBER = "919840000000";
+const ADMIN_WHATSAPP_NUMBER = "919962260779";
 
 export default function ContactSection() {
   const [name, setName] = useState('')
@@ -222,28 +222,59 @@ Thank you.`
 
               {/* Contact Information Boxes */}
               <div className="contact-boxes-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                {[
-                  { label: 'DIRECT PHONE', value: '+91 98400 00000' },
-                  { label: 'OFFICIAL EMAIL', value: 'info@chathurlakshana.in' },
-                ].map(c => (
-                  <div key={c.label} style={{
+                <a
+                  href="tel:+919962260779"
+                  style={{ textDecoration: 'none', display: 'block' }}
+                >
+                  <div style={{
                     border: '1px solid rgba(212, 175, 101, 0.28)',
                     padding: '20px 22px',
                     backgroundColor: '#301326',
                     borderRadius: '2px',
-                  }}>
+                    transition: 'border-color 0.3s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent-gold)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.28)'}
+                  >
                     <div style={{
                       fontFamily: "var(--font-body)",
                       fontSize: '11px', letterSpacing: '0.2em', fontWeight: 600,
                       color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '6px',
-                    }}>✦ {c.label}</div>
+                    }}>✦ DIRECT PHONE</div>
                     <div style={{
                       fontFamily: "var(--font-body)",
                       fontSize: '14.5px', color: 'var(--text-primary)', fontWeight: 500,
                       wordBreak: 'break-word',
-                    }}>{c.value}</div>
+                    }}>+91 99622 60779</div>
                   </div>
-                ))}
+                </a>
+
+                <a
+                  href="mailto:info@chathurlakshana.in"
+                  style={{ textDecoration: 'none', display: 'block' }}
+                >
+                  <div style={{
+                    border: '1px solid rgba(212, 175, 101, 0.28)',
+                    padding: '20px 22px',
+                    backgroundColor: '#301326',
+                    borderRadius: '2px',
+                    transition: 'border-color 0.3s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent-gold)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.28)'}
+                  >
+                    <div style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: '11px', letterSpacing: '0.2em', fontWeight: 600,
+                      color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '6px',
+                    }}>✦ OFFICIAL EMAIL</div>
+                    <div style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: '14.5px', color: 'var(--text-primary)', fontWeight: 500,
+                      wordBreak: 'break-word',
+                    }}>info@chathurlakshana.in</div>
+                  </div>
+                </a>
               </div>
             </div>
           </FadeIn>
@@ -335,7 +366,7 @@ Thank you.`
                       <label style={labelStyle}>PHONE NUMBER</label>
                       <input
                         type="tel"
-                        placeholder="+91 98400 00000"
+                        placeholder="+91 99622 60779"
                         style={inputStyle}
                         value={phone}
                         onChange={e => setPhone(e.target.value)}

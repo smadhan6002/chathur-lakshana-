@@ -1,36 +1,37 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
+// Verified Artistic Milestones & Productions from Client Document (Phase 5, Phase 7, Phase 9)
 const timelineEvents = [
   {
-    year: '2010',
-    title: 'The First Salangai',
-    desc: 'Chathur Lakshana opens its doors in Mylapore with a handful of students and a single lamp.',
+    year: '1992',
+    title: 'Arangetram Debut',
+    desc: 'Trained under revered Guru Smt. Ambika Buch, marking the formal initiation and debut into classical Bharatanatyam.',
   },
   {
-    year: '2014',
-    title: 'Sabha Debut',
-    desc: "Students begin performing at Chennai's sabhas during the Margazhi season.",
+    year: '2001–2004',
+    title: 'Kalakshetra Troupe & Major Classical Roles',
+    desc: 'Awarded Diploma and Post Diploma with First Class from Kalakshetra College of Fine Arts. Performed with the Kalakshetra troupe across India and internationally, portraying leading roles including Sita in Ramayanam, Andal in Andal Charitram, Parvathi in Kumara Sambhavam, and Akka Mahadevi.',
   },
   {
-    year: '2017',
-    title: 'First Arangetram',
-    desc: 'The academy guides its first student through the sacred arangetram — a milestone of mastery.',
+    year: 'Productions',
+    title: 'Acclaimed Thematic Choreographies',
+    desc: 'Conceived and staged celebrated thematic dance productions celebrating heritage, womanhood, and sacred texts, including Women – from Earthenware to Software, Sthree – Women Through the Ages, Kuttrala Kuravanji, Vaggeya Bharatam, Upanisad Bharatam, SHE, Krishna Bharatam, Festivals of Tamil Nadu, and Suchinthai Maalai.',
   },
   {
-    year: '2019',
-    title: 'Natya Shastra Studies',
-    desc: 'Introduction of theory classes rooted in the Natya Shastra for senior students.',
+    year: '2019 & 2024',
+    title: 'Cleveland Aradhana Festival, USA',
+    desc: 'Invited performances at the world-renowned Cleveland Thyagaraja Festival in the United States, representing authentic classical Bharatanatyam on the international stage.',
   },
   {
-    year: '2022',
-    title: 'Fine Arts Studio',
-    desc: 'Launch of the Fine Arts Studio — Kolam, temple art and classical painting added to the curriculum.',
+    year: 'Jan 16, 2025',
+    title: 'Panniru Thingalum Pazhindridu Vizhakkalum',
+    desc: 'Major thematic production choreographed and staged for Nada Sudha Trust, celebrating the sacred cycle of traditional temple festivals across the twelve Tamil months.',
   },
   {
-    year: '2025',
-    title: 'Fifteen Years',
-    desc: 'Three hundred students, forty stage productions and twenty-five arangetrams. The journey continues.',
+    year: '2025–2026',
+    title: 'Vani Kala Nipuna Conferred',
+    desc: 'Prestigious title conferred for Bharatanatyam by Sri Thyaga Brahma Gana Sabha, honouring decades of unwavering performance, scholarly research, and teaching dedication.',
   },
 ]
 
@@ -46,7 +47,7 @@ function TimelineCard({ event, index }: { event: typeof timelineEvents[0]; index
       transition={{ duration: 0.75, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
       style={{ position: 'relative' }}
     >
-      {/* Gold Node Marker with Temple Diamond Glow */}
+      {/* Gold Node Marker with Temple Glow */}
       <div
         style={{
           position: 'absolute',
@@ -102,12 +103,12 @@ function TimelineCard({ event, index }: { event: typeof timelineEvents[0]; index
         <div
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: 'clamp(30px, 4vw, 38px)',
+            fontSize: 'clamp(24px, 3.5vw, 32px)',
             letterSpacing: '0.04em',
             color: 'var(--accent-gold)',
             marginBottom: '6px',
             fontWeight: 500,
-            lineHeight: 1,
+            lineHeight: 1.1,
             textShadow: '0 0 16px rgba(212, 175, 101, 0.3)',
           }}
         >
@@ -118,7 +119,7 @@ function TimelineCard({ event, index }: { event: typeof timelineEvents[0]; index
         <h3
           style={{
             fontFamily: "var(--font-display)",
-            fontSize: 'clamp(22px, 3vw, 28px)',
+            fontSize: 'clamp(21px, 2.8vw, 26px)',
             fontWeight: 500,
             color: 'var(--text-primary)',
             marginBottom: '10px',
@@ -132,9 +133,9 @@ function TimelineCard({ event, index }: { event: typeof timelineEvents[0]; index
         <p
           style={{
             fontFamily: "var(--font-body)",
-            fontSize: 'clamp(14.5px, 1.6vw, 16.5px)',
+            fontSize: 'clamp(14px, 1.5vw, 15.5px)',
             color: 'var(--text-secondary)',
-            lineHeight: 1.65,
+            lineHeight: 1.7,
             margin: 0,
           }}
         >
@@ -191,7 +192,7 @@ export default function TimelineSection() {
               marginBottom: '18px',
             }}
           >
-            ✧ FIFTEEN YEARS OF EXCELLENCE ✧
+            ✧ PRODUCTIONS &amp; ARTISTIC MILESTONES ✧
           </div>
           <h2
             style={{
@@ -202,7 +203,7 @@ export default function TimelineSection() {
               lineHeight: 1.15,
             }}
           >
-            The Academy's Journey
+            Artistic Journey &amp; Repertoire
           </h2>
           <div
             style={{
@@ -215,7 +216,7 @@ export default function TimelineSection() {
         </motion.div>
 
         {/* Vertical Timeline Structure */}
-        <div style={{ position: 'relative', maxWidth: '720px', margin: '0 auto', paddingLeft: '48px' }}>
+        <div style={{ position: 'relative', maxWidth: '780px', margin: '0 auto', paddingLeft: '48px' }}>
           {/* Animated Gold Vertical Spine */}
           <motion.div
             initial={{ scaleY: 0 }}
@@ -236,7 +237,7 @@ export default function TimelineSection() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(36px, 5vw, 48px)' }}>
             {timelineEvents.map((event, i) => (
-              <TimelineCard key={event.year} event={event} index={i} />
+              <TimelineCard key={event.year + event.title} event={event} index={i} />
             ))}
           </div>
         </div>
