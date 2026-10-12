@@ -70,22 +70,22 @@ const awards = [
   },
 ]
 
-// Existing testimonials preserved per Phase 12; verified to address Radhika ma'am
+// Authentic student testimonials provided by client
 const testimonials = [
   {
-    quote: "Radhika ma'am teaches character before choreography. My daughter walks differently since she joined.",
-    name: 'LAKSHMI SUNDARAM',
-    role: 'Parent, Mylapore',
+    name: 'VASUNDHARA N',
+    paragraphs: [
+      'Learning at Chathur Lakshana is a joyful experience. At Chathur Lakshana, it feels like one big family, where everyone cheers each other on. Senior students guide the younger batches, which builds a lovely bond among us. We learn every gesture and movement along with its cultural, spiritual, and deeper meaning, so our understanding of the art goes beyond the performance itself. We don’t just learn the steps. Rather, we learn to feel them. Performance opportunities throughout the year let us put what we learn into practice, and with every show we grow in expression and confidence.',
+      'Our Acharya is endlessly patient and gentle, and she treats us like her own children. She encourages us to bring our best to everything we do, whether on stage or in everyday life. Her deep knowledge of rhythm and expression makes every class engaging, insightful, and full of learning. Under her guidance, I have grown not just as a dancer, but as a more confident person.',
+    ],
   },
   {
-    quote: 'My arangetram felt less like an exam and more like a blessing. Every adavu had been earned.',
-    name: 'ANUSHA IYER',
-    role: 'Senior student',
-  },
-  {
-    quote: 'One of the most disciplined young ensembles on the Chennai sabha circuit today.',
-    name: 'R. KRISHNAMURTHY',
-    role: 'Sabha secretary',
+    name: 'AISHWARYA E',
+    paragraphs: [
+      'My experience in learning Dance here in Chathur Lakshana always gives me warmth and build clarity day by day.',
+      'The space, which is created by our guru always creates hope and trust within ourselves to reach our goals. Also during performances and productions, I have learnt a lot of nuances not only in dancing but also how other things need to be taken care of which revolves around dancing.',
+      'Lastly, the most beautiful feeling that I felt is, ‘Education without fear’.',
+    ],
   },
 ]
 
@@ -471,60 +471,80 @@ export default function AchievementsSection() {
         </FadeIn>
 
         {/* Testimonials Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '11px',
-              fontWeight: 600,
-              letterSpacing: '0.22em',
-              color: 'var(--accent-gold)',
-              textTransform: 'uppercase',
-              marginBottom: '8px',
-            }}
-          >
-            ✧ STUDENT &amp; COMMUNITY VOICES ✧
+        <FadeIn delay={0.15}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(40px, 6vw, 56px)' }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.22em',
+                color: 'var(--accent-gold)',
+                textTransform: 'uppercase',
+                marginBottom: '10px',
+              }}
+            >
+              ✧ STUDENT VOICES ✧
+            </div>
+            <h3
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(28px, 4.5vw, 42px)',
+                color: 'var(--text-primary)',
+                fontWeight: 400,
+                lineHeight: 1.2,
+                margin: '0 0 12px',
+              }}
+            >
+              Learning Beyond the Dance
+            </h3>
+            <p
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.15rem, 1.8vw, 1.4rem)',
+                fontStyle: 'italic',
+                color: 'var(--text-secondary)',
+                maxWidth: '680px',
+                margin: '0 auto',
+                lineHeight: 1.5,
+              }}
+            >
+              Every gesture tells a story. Every student discovers something new.
+            </p>
           </div>
-          <h3
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(26px, 4vw, 36px)',
-              color: 'var(--text-primary)',
-              fontWeight: 400,
-              margin: 0,
-            }}
-          >
-            Words from Parents &amp; Artistes
-          </h3>
-        </div>
+        </FadeIn>
 
-        {/* Testimonials Grid */}
+        {/* Testimonials Grid (2 Authentic Cards) */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '24px',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 'clamp(24px, 3.5vw, 36px)',
+            maxWidth: '1120px',
+            margin: '0 auto',
           }}
           className="testimonials-grid"
         >
           {testimonials.map((t, i) => (
-            <FadeIn key={t.name} delay={0.25 + i * 0.1}>
+            <FadeIn key={t.name} delay={0.25 + i * 0.15}>
               <div
                 style={{
                   border: '1px solid rgba(212, 175, 101, 0.3)',
                   borderRadius: '2px',
-                  padding: 'clamp(32px, 4vw, 44px) clamp(24px, 3vw, 36px)',
+                  padding: 'clamp(32px, 4.5vw, 44px) clamp(24px, 3.5vw, 36px)',
                   backgroundColor: '#301326',
                   boxShadow: '0 12px 35px rgba(0, 0, 0, 0.4)',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   transition: 'border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease',
+                  position: 'relative',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.7)'
                   e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 18px 45px rgba(0, 0, 0, 0.55), 0 0 20px rgba(212, 175, 101, 0.15)'
+                  e.currentTarget.style.boxShadow =
+                    '0 18px 45px rgba(0, 0, 0, 0.55), 0 0 20px rgba(212, 175, 101, 0.15)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(212, 175, 101, 0.3)'
@@ -535,56 +555,66 @@ export default function AchievementsSection() {
                 <div
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: '52px',
+                    fontSize: '48px',
                     color: 'var(--accent-gold)',
                     lineHeight: 1,
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     opacity: 0.85,
                   }}
+                  aria-hidden="true"
                 >
-                  "
+                  &ldquo;
                 </div>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(1.15rem, 1.8vw, 1.35rem)',
-                    fontStyle: 'italic',
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.7,
-                    marginBottom: '32px',
-                    flexGrow: 1,
-                  }}
-                >
-                  {t.quote}
-                </p>
+
                 <div
                   style={{
-                    borderTop: '1px solid rgba(212, 175, 101, 0.18)',
-                    paddingTop: '16px',
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    marginBottom: '28px',
                   }}
                 >
+                  {t.paragraphs.map((p, pIdx) => (
+                    <p
+                      key={pIdx}
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'clamp(14px, 1.4vw, 15.5px)',
+                        color: 'var(--text-primary)',
+                        lineHeight: 1.75,
+                        margin: 0,
+                        fontWeight: 300,
+                        letterSpacing: '0.01em',
+                      }}
+                    >
+                      {p}
+                    </p>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    borderTop: '1px solid rgba(212, 175, 101, 0.22)',
+                    paddingTop: '18px',
+                    marginTop: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <span style={{ color: 'var(--accent-gold)', fontSize: '11px' }}>✦</span>
                   <div
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '12px',
+                      fontSize: '12.5px',
                       fontWeight: 600,
-                      letterSpacing: '0.18em',
+                      letterSpacing: '0.2em',
                       color: 'var(--accent-gold)',
                       textTransform: 'uppercase',
-                      marginBottom: '4px',
                     }}
                   >
                     {t.name}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: '14px',
-                      color: 'var(--text-secondary)',
-                      fontWeight: 400,
-                    }}
-                  >
-                    {t.role}
                   </div>
                 </div>
               </div>
