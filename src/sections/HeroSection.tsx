@@ -3,7 +3,11 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import GoldParticles from '../components/GoldParticles'
 import pose0 from '../assets/Purana Manjari 2019.jpg.jpeg'
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onNavigate?: (path: string) => void
+}
+
+export default function HeroSection({ onNavigate }: HeroSectionProps = {}) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const { scrollY } = useScroll()
 
@@ -262,7 +266,15 @@ export default function HeroSection() {
           }}
         >
           <button
-            onClick={() => document.querySelector('#courses')?.scrollIntoView({ behavior: 'smooth' })}
+            type="button"
+            onClick={() => {
+              const el = document.querySelector('#courses-preview') || document.querySelector('#courses')
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' })
+              } else if (onNavigate) {
+                onNavigate('/courses')
+              }
+            }}
             className="btn-primary"
             style={{
               padding: '16px 42px',
@@ -273,7 +285,15 @@ export default function HeroSection() {
             EXPLORE COURSES
           </button>
           <button
-            onClick={() => document.querySelector('#academy')?.scrollIntoView({ behavior: 'smooth' })}
+            type="button"
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate('/academy')
+              } else {
+                const el = document.querySelector('#pillars-preview') || document.querySelector('#academy')
+                if (el) el.scrollIntoView({ behavior: 'smooth' })
+              }
+            }}
             className="btn-secondary"
             style={{
               padding: '16px 42px',

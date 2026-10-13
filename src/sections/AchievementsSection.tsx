@@ -70,7 +70,7 @@ const awards = [
   },
 ]
 
-// Authentic student testimonials provided by client
+// Authentic student testimonials provided directly by client (Vasundhara N., Aishwarya E., and Mangaiyarkarasi)
 const testimonials = [
   {
     name: 'VASUNDHARA N',
@@ -85,6 +85,13 @@ const testimonials = [
       'My experience in learning Dance here in Chathur Lakshana always gives me warmth and build clarity day by day.',
       'The space, which is created by our guru always creates hope and trust within ourselves to reach our goals. Also during performances and productions, I have learnt a lot of nuances not only in dancing but also how other things need to be taken care of which revolves around dancing.',
       'Lastly, the most beautiful feeling that I felt is, ‘Education without fear’.',
+    ],
+  },
+  {
+    name: 'MANGAIYARKARASI',
+    paragraphs: [
+      'Learning Bharatanatyam under the tutelage of Smt. Dr. Radhika is truly a blessing. It has been a wonderful experience learning padams, javalis, and varnams from her. I deeply admire the way she teaches the essence and core concepts of every composition. She guides us in bringing out the appropriate expressions and carefully points out what needs correction and what requires more emphasis.',
+      'What makes her teaching exceptional is her attention to detail. She shares every nuance, from the intricacies of the thala kattu to the finer aspects of abhinaya, drawing from the rich experience she has gained throughout her artistic journey. She imparts her knowledge with immense love, generosity, and dedication. Learning from her is always a joy and a privilege. The only challenge for students is to continually upskill ourselves to keep pace with her energy, passion, and remarkable speed of teaching.',
     ],
   },
 ]
@@ -217,7 +224,7 @@ export default function AchievementsSection() {
                 marginBottom: '16px',
               }}
             >
-              ✧ AWARDS &amp; RECOGNITION ✧
+              ✧ HONOURS, AWARDS &amp; STUDENT VOICES ✧
             </div>
             <h2
               style={{
@@ -229,7 +236,7 @@ export default function AchievementsSection() {
                 lineHeight: 1.15,
               }}
             >
-              Honours, Recognition &amp; Voices
+              Honours &amp; Authentic Student Voices
             </h2>
             <div
               style={{
@@ -247,7 +254,7 @@ export default function AchievementsSection() {
                 color: 'var(--text-secondary)',
               }}
             >
-              A distinguished legacy of artistic mastery, cultural leadership, and academic distinction.
+              A distinguished legacy of artistic mastery, cultural leadership, and authentic disciple reflections.
             </p>
           </div>
         </FadeIn>
@@ -484,7 +491,7 @@ export default function AchievementsSection() {
                 marginBottom: '10px',
               }}
             >
-              ✧ STUDENT VOICES ✧
+              ✧ AUTHENTIC STUDENT VOICES ✧
             </div>
             <h3
               style={{
@@ -509,29 +516,29 @@ export default function AchievementsSection() {
                 lineHeight: 1.5,
               }}
             >
-              Every gesture tells a story. Every student discovers something new.
+              Reflections from genuine disciples on the warmth, depth, and transformative pedagogy of Chathur Lakshana.
             </p>
           </div>
         </FadeIn>
 
-        {/* Testimonials Grid (2 Authentic Cards) */}
+        {/* Testimonials Grid (3 Authentic Cards: Vasundhara N., Aishwarya E., and Mangaiyarkarasi) */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 'clamp(24px, 3.5vw, 36px)',
-            maxWidth: '1120px',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 'clamp(20px, 2.8vw, 32px)',
+            maxWidth: '1280px',
             margin: '0 auto',
           }}
           className="testimonials-grid"
         >
           {testimonials.map((t, i) => (
-            <FadeIn key={t.name} delay={0.25 + i * 0.15}>
+            <FadeIn key={t.name} delay={0.15 + i * 0.12}>
               <div
                 style={{
                   border: '1px solid rgba(212, 175, 101, 0.3)',
                   borderRadius: '2px',
-                  padding: 'clamp(32px, 4.5vw, 44px) clamp(24px, 3.5vw, 36px)',
+                  padding: 'clamp(28px, 3.5vw, 38px) clamp(22px, 3vw, 32px)',
                   backgroundColor: '#301326',
                   boxShadow: '0 12px 35px rgba(0, 0, 0, 0.4)',
                   height: '100%',
@@ -555,10 +562,10 @@ export default function AchievementsSection() {
                 <div
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: '48px',
+                    fontSize: '44px',
                     color: 'var(--accent-gold)',
                     lineHeight: 1,
-                    marginBottom: '16px',
+                    marginBottom: '14px',
                     opacity: 0.85,
                   }}
                   aria-hidden="true"
@@ -571,8 +578,8 @@ export default function AchievementsSection() {
                     flexGrow: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '16px',
-                    marginBottom: '28px',
+                    gap: '14px',
+                    marginBottom: '24px',
                   }}
                 >
                   {t.paragraphs.map((p, pIdx) => (
@@ -580,9 +587,9 @@ export default function AchievementsSection() {
                       key={pIdx}
                       style={{
                         fontFamily: 'var(--font-body)',
-                        fontSize: 'clamp(14px, 1.4vw, 15.5px)',
+                        fontSize: 'clamp(13.5px, 1.35vw, 15px)',
                         color: 'var(--text-primary)',
-                        lineHeight: 1.75,
+                        lineHeight: 1.7,
                         margin: 0,
                         fontWeight: 300,
                         letterSpacing: '0.01em',
@@ -596,7 +603,7 @@ export default function AchievementsSection() {
                 <div
                   style={{
                     borderTop: '1px solid rgba(212, 175, 101, 0.22)',
-                    paddingTop: '18px',
+                    paddingTop: '16px',
                     marginTop: 'auto',
                     display: 'flex',
                     alignItems: 'center',
@@ -624,9 +631,11 @@ export default function AchievementsSection() {
       </div>
 
       <style>{`
+        @media (max-width: 1080px) {
+          .testimonials-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
+        }
         @media (max-width: 900px) {
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .testimonials-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 480px) {
           .stats-grid { grid-template-columns: 1fr !important; }

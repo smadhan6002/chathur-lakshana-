@@ -80,17 +80,14 @@ body {
   font-size: clamp(1rem, 1.4vw, 1.15rem);
   line-height: 1.7;
   letter-spacing: 0.01em;
-  cursor: none;
+}
+
+a, button {
+  cursor: pointer;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
-}
-
-/* Restore cursor on touch devices */
-@media (hover: none) {
-  body { cursor: auto; }
-  a, button { cursor: pointer; }
 }
 
 /* Magnetic button feel */

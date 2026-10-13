@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, CheckCircle, Sparkles, Send, Loader2 } from 'lucide-react'
+import { X, CheckCircle, Sparkles, Send, Loader2, BookOpen, MessageSquare } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export const AVAILABLE_COURSES = [
@@ -8,6 +8,7 @@ export const AVAILABLE_COURSES = [
   'Carnatic Vocal',
   'Choreography & Theory',
   'Fine Arts Studio',
+  'General / Multiple Courses',
 ] as const
 
 export const LEARNING_MODES = [
@@ -16,15 +17,24 @@ export const LEARNING_MODES = [
   'Hybrid (In-Person & Online)',
 ] as const
 
+export type EnquiryType = 'Course Enrolment' | 'General Enquiry'
+
 interface EnquiryModalProps {
   isOpen: boolean
   initialCourse?: string
+  initialType?: EnquiryType
   onClose: () => void
 }
 
 const ADMIN_WHATSAPP_NUMBER = '919962260779'
 
-export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', onClose }: EnquiryModalProps) {
+export default function EnquiryModal({
+  isOpen,
+  initialCourse = 'Bharatanatyam',
+  initialType = 'Course Enrolment',
+  onClose,
+}: EnquiryModalProps) {
+  const [enquiryType, setEnquiryType] = useState<EnquiryType>(initialType)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -38,18 +48,21 @@ export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', 
 
   const modalRef = useRef<HTMLDivElement>(null)
 
-  // Update selected course whenever initialCourse changes or modal opens
+  // Update form fields whenever initial properties change or modal opens
   useEffect(() => {
     if (isOpen) {
+      setEnquiryType(initialType || 'Course Enrolment')
       if (initialCourse && AVAILABLE_COURSES.includes(initialCourse as any)) {
         setCourse(initialCourse)
+      } else if (initialType === 'General Enquiry') {
+        setCourse('General / Multiple Courses')
       } else {
         setCourse('Bharatanatyam')
       }
       setErrors({})
       setIsSuccess(false)
     }
-  }, [isOpen, initialCourse])
+  }, [isOpen, initialCourse, initialType])
 
   // Prevent background page scrolling when modal is open
   useEffect(() => {
@@ -99,7 +112,7 @@ export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', 
     }
 
     if (!course) {
-      errs.course = 'Please select a course.'
+      errs.course = 'Please select a course of interest.'
     }
 
     setErrors(errs)
@@ -125,6 +138,7 @@ export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', 
             name: name.trim(),
             phone: phone.trim(),
             email: email.trim(),
+            enquiry_type: enquiryType,
             course,
             learning_mode: learningMode,
             message: message.trim(),
@@ -139,16 +153,17 @@ export default function EnquiryModal({ isOpen, initialCourse = 'Bharatanatyam', 
     // Format clean WhatsApp message for academy admin
     const whatsappText = `Hello Chathur Lakshana Academy,
 
-I would like to enquire about admissions.
+I would like to submit an enquiry:
 
 ━━━━━━━━━━━━━━━━
+• Enquiry Type: ${enquiryType}
 • Full Name: ${name.trim()}
 • Phone: ${phone.trim()}
 • Email: ${email.trim()}
-• Course: ${course}
-• Learning Mode: ${learningMode}
+• Course of Interest: ${course}
+• Preferred Mode: ${learningMode}
 
-• Additional Details:
+• Message / Details:
 ${message.trim() || 'No additional note'}
 ━━━━━━━━━━━━━━━━
 
@@ -213,7 +228,7 @@ Submitted via Chathur Lakshana Academy website.`
             style={{
               position: 'relative',
               width: '100%',
-              maxWidth: '560px',
+              maxWidth: '580px',
               backgroundColor: '#1E0918',
               backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(212, 175, 101, 0.12) 0%, rgba(30, 9, 24, 0) 70%)',
               border: '1px solid rgba(212, 175, 101, 0.35)',
@@ -308,12 +323,13 @@ Submitted via Chathur Lakshana Academy website.`
                     fontSize: '15px',
                     color: 'var(--text-secondary)',
                     lineHeight: 1.6,
-                    maxWidth: '420px',
+                    maxWidth: '440px',
                     margin: '0 auto 24px',
                   }}
                 >
-                  Thank you, <strong style={{ color: 'var(--accent-gold-light)' }}>{name || 'Artiste'}</strong>! Your enquiry for{' '}
-                  <strong style={{ color: 'var(--accent-gold)' }}>{course}</strong> has been opened. Our academy will assist you shortly.
+                  Thank you, <strong style={{ color: 'var(--accent-gold-light)' }}>{name || 'Artiste'}</strong>! Your{' '}
+                  <strong style={{ color: 'var(--accent-gold)' }}>{enquiryType}</strong> for{' '}
+                  <strong style={{ color: 'var(--accent-gold-light)' }}>{course}</strong> has been opened. Our academy will assist you promptly.
                 </p>
 
                 <button
@@ -329,7 +345,7 @@ Submitted via Chathur Lakshana Academy website.`
               /* Form View */
               <div>
                 {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: '26px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '22px' }}>
                   <div
                     style={{
                       display: 'inline-flex',
@@ -345,39 +361,114 @@ Submitted via Chathur Lakshana Academy website.`
                     }}
                   >
                     <Sparkles size={13} />
-                    <span>Admissions &bull; 2026</span>
+                    <span>Admissions &bull; Enquiries &bull; 2026</span>
                   </div>
 
                   <h3
                     id="enquiry-modal-title"
                     style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(28px, 4vw, 36px)',
+                      fontSize: 'clamp(26px, 3.8vw, 34px)',
                       color: 'var(--text-primary)',
-                      margin: '0 0 8px',
+                      margin: '0 0 6px',
                       fontWeight: 400,
                       letterSpacing: '0.02em',
                     }}
                   >
-                    Begin Your Journey
+                    {enquiryType === 'Course Enrolment' ? 'Enrol with Chathur Lakshana' : 'Get in Touch with Our Academy'}
                   </h3>
 
                   <p
                     style={{
                       fontFamily: 'var(--font-body)',
-                      fontSize: '14px',
+                      fontSize: '13.5px',
                       color: 'var(--text-secondary)',
                       margin: 0,
                       lineHeight: 1.5,
                     }}
                   >
-                    Tell us a little about yourself and the course you're interested in.
+                    {enquiryType === 'Course Enrolment'
+                      ? 'Reserve your place for upcoming classical batches or enquire about schedules.'
+                      : 'Send us your queries about courses, studio visits, workshops, or collaborations.'}
                   </p>
+                </div>
+
+                {/* Enquiry Type Selector Tabs */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '8px',
+                    marginBottom: '20px',
+                    background: 'rgba(22, 8, 17, 0.65)',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(212, 175, 101, 0.25)',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquiryType('Course Enrolment')
+                      if (course === 'General / Multiple Courses') {
+                        setCourse('Bharatanatyam')
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '10px 12px',
+                      border: 'none',
+                      borderRadius: '3px',
+                      backgroundColor: enquiryType === 'Course Enrolment' ? 'rgba(212, 175, 101, 0.2)' : 'transparent',
+                      color: enquiryType === 'Course Enrolment' ? 'var(--accent-gold)' : 'var(--text-secondary)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                      borderBottom: enquiryType === 'Course Enrolment' ? '2px solid var(--accent-gold)' : '2px solid transparent',
+                    }}
+                  >
+                    <BookOpen size={14} />
+                    <span>Course Enrolment</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEnquiryType('General Enquiry')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      padding: '10px 12px',
+                      border: 'none',
+                      borderRadius: '3px',
+                      backgroundColor: enquiryType === 'General Enquiry' ? 'rgba(212, 175, 101, 0.2)' : 'transparent',
+                      color: enquiryType === 'General Enquiry' ? 'var(--accent-gold)' : 'var(--text-secondary)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                      borderBottom: enquiryType === 'General Enquiry' ? '2px solid var(--accent-gold)' : '2px solid transparent',
+                    }}
+                  >
+                    <MessageSquare size={14} />
+                    <span>General Enquiry</span>
+                  </button>
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
                   {/* Full Name */}
-                  <div style={{ marginBottom: '16px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <label
                       htmlFor="enquiry-name"
                       style={{
@@ -401,7 +492,7 @@ Submitted via Chathur Lakshana Academy website.`
                         setName(e.target.value)
                         if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
                       }}
-                      placeholder="e.g. Priyadarshini Sundaram"
+                      placeholder="e.g. Radhika Sundaram"
                       style={{
                         width: '100%',
                         backgroundColor: 'rgba(22, 8, 17, 0.75)',
@@ -429,7 +520,7 @@ Submitted via Chathur Lakshana Academy website.`
                       display: 'grid',
                       gridTemplateColumns: '1fr 1fr',
                       gap: '14px',
-                      marginBottom: '16px',
+                      marginBottom: '14px',
                     }}
                     className="enquiry-two-col"
                   >
@@ -503,7 +594,7 @@ Submitted via Chathur Lakshana Academy website.`
                           setEmail(e.target.value)
                           if (errors.email) setErrors((prev) => ({ ...prev, email: '' }))
                         }}
-                        placeholder="e.g. priya@example.com"
+                        placeholder="e.g. radhika@example.com"
                         style={{
                           width: '100%',
                           backgroundColor: 'rgba(22, 8, 17, 0.75)',
@@ -532,7 +623,7 @@ Submitted via Chathur Lakshana Academy website.`
                       display: 'grid',
                       gridTemplateColumns: '1.2fr 1fr',
                       gap: '14px',
-                      marginBottom: '16px',
+                      marginBottom: '14px',
                     }}
                     className="enquiry-two-col"
                   >
@@ -550,7 +641,7 @@ Submitted via Chathur Lakshana Academy website.`
                           marginBottom: '6px',
                         }}
                       >
-                        Course Selection *
+                        {enquiryType === 'Course Enrolment' ? 'Course of Interest *' : 'Relevant Topic / Course *'}
                       </label>
                       <select
                         id="enquiry-course"
@@ -622,7 +713,7 @@ Submitted via Chathur Lakshana Academy website.`
                   </div>
 
                   {/* Message */}
-                  <div style={{ marginBottom: '22px' }}>
+                  <div style={{ marginBottom: '20px' }}>
                     <label
                       htmlFor="enquiry-message"
                       style={{
@@ -636,14 +727,20 @@ Submitted via Chathur Lakshana Academy website.`
                         marginBottom: '6px',
                       }}
                     >
-                      Message or Additional Details
+                      {enquiryType === 'Course Enrolment'
+                        ? 'Prior Experience / Age Group / Preferred Timing'
+                        : 'Message or Question'}
                     </label>
                     <textarea
                       id="enquiry-message"
                       rows={3}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Share your age group, prior dance experience, or specific questions..."
+                      placeholder={
+                        enquiryType === 'Course Enrolment'
+                          ? 'Share student age, prior dance background, or specific batch questions...'
+                          : 'How can Chathur Lakshana Academy assist you?'
+                      }
                       style={{
                         width: '100%',
                         backgroundColor: 'rgba(22, 8, 17, 0.75)',
@@ -685,7 +782,7 @@ Submitted via Chathur Lakshana Academy website.`
                     ) : (
                       <>
                         <Send size={15} />
-                        <span>SUBMIT ENQUIRY</span>
+                        <span>{enquiryType === 'Course Enrolment' ? 'SUBMIT ENROLMENT ENQUIRY' : 'SEND GENERAL ENQUIRY'}</span>
                       </>
                     )}
                   </button>

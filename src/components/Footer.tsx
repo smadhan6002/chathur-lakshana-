@@ -1,4 +1,21 @@
-export default function Footer() {
+import logoImg from '../img/LOGO.png'
+
+interface FooterProps {
+  onNavigate?: (path: string) => void
+}
+
+export default function Footer({ onNavigate }: FooterProps) {
+  const handleNav = (path: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    if (onNavigate) {
+      onNavigate(path)
+    } else {
+      window.history.pushState({}, '', path)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <footer
       style={{
@@ -32,33 +49,45 @@ export default function Footer() {
         }} className="footer-grid">
           {/* Brand Column */}
           <div>
-            <div style={{
-              fontFamily: "var(--font-display)",
-              fontSize: '22px', fontWeight: 600, letterSpacing: '0.15em',
-              color: 'var(--text-primary)', textTransform: 'uppercase', marginBottom: '8px',
-            }}>CHATHUR LAKSHANA</div>
-            <div style={{
-              fontFamily: "var(--font-body)",
-              fontSize: '11px', letterSpacing: '0.22em', fontWeight: 600,
-              color: 'var(--accent-gold)',
-              textTransform: 'uppercase', marginBottom: '22px',
-            }}>ACADEMY OF FINE ARTS</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+              <img
+                src={logoImg}
+                alt="Chathur Lakshana Logo"
+                style={{ height: '42px', width: 'auto', objectFit: 'contain' }}
+              />
+              <div>
+                <div style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: '20px', fontWeight: 600, letterSpacing: '0.15em',
+                  color: 'var(--text-primary)', textTransform: 'uppercase', lineHeight: 1.15,
+                }}>CHATHUR LAKSHANA</div>
+                <div style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: '10px', letterSpacing: '0.22em', fontWeight: 600,
+                  color: 'var(--accent-gold)',
+                  textTransform: 'uppercase',
+                }}>ACADEMY OF FINE ARTS</div>
+              </div>
+            </div>
+
             <p style={{
               fontFamily: "var(--font-body)",
-              fontSize: '14.5px', fontStyle: 'italic',
+              fontSize: '14px', fontStyle: 'italic',
               color: 'var(--text-secondary)',
-              lineHeight: 1.7, maxWidth: '340px', margin: '0 0 14px',
+              lineHeight: 1.7, maxWidth: '360px', margin: '0 0 16px',
             }}>
               Preserving tradition, inspiring excellence, and celebrating Bharatanatyam from the heart of Mylapore, Chennai.
             </p>
+
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: '12px',
               color: 'var(--accent-gold-light)',
               letterSpacing: '0.05em',
             }}>
-              <strong>Founder-Director:</strong> Dr. Radhika Vairavelavan
+              <strong>Founder-Director:</strong> Smt. Dr. Radhika Vairavelavan
             </div>
+
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: '12px',
@@ -76,20 +105,23 @@ export default function Footer() {
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: '11.5px', letterSpacing: '0.22em', fontWeight: 600,
-              color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '22px',
-            }}>✧ ACADEMY</div>
-            {['About', 'Founder', 'Courses'].map(link => (
-              <div key={link} style={{ marginBottom: '14px' }}>
+              color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '20px',
+            }}>✧ DISCOVER</div>
+            {[
+              { label: 'Home', path: '/' },
+              { label: 'Academy Journey & Pillars', path: '/academy' },
+              { label: 'Founder-Director', path: '/founder' },
+              { label: 'Courses & Curriculum', path: '/courses' },
+            ].map(link => (
+              <div key={link.label} style={{ marginBottom: '12px' }}>
                 <button
-                  onClick={() => {
-                    const map: Record<string, string> = { About: '#academy', Founder: '#founder', Courses: '#courses' }
-                    document.querySelector(map[link])?.scrollIntoView({ behavior: 'smooth' })
-                  }}
+                  type="button"
+                  onClick={(e) => handleNav(link.path, e)}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     fontFamily: "var(--font-body)", fontWeight: 500,
-                    fontSize: '14.5px', color: 'var(--text-secondary)',
-                    transition: 'color 0.3s ease, transform 0.3s ease',
+                    fontSize: '14px', color: 'var(--text-secondary)',
+                    transition: 'color 0.25s ease, transform 0.25s ease',
                     padding: 0,
                   }}
                   onMouseEnter={e => {
@@ -100,38 +132,33 @@ export default function Footer() {
                     e.currentTarget.style.color = 'var(--text-secondary)'
                     e.currentTarget.style.transform = 'translateX(0)'
                   }}
-                >{link}</button>
+                >{link.label}</button>
               </div>
             ))}
           </div>
 
-          {/* Experience Column */}
+          {/* Experience & Contact Column */}
           <div>
             <div style={{
               fontFamily: "var(--font-body)",
               fontSize: '11.5px', letterSpacing: '0.22em', fontWeight: 600,
-              color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '22px',
+              color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '20px',
             }}>✧ EXPERIENCE</div>
             {[
-              { label: 'Performances', href: '#gallery' },
-              { label: 'Gallery', href: '#gallery' },
-              { label: 'Contact', href: '#contact' },
-              { label: 'Admin Login', href: '/admin' },
+              { label: 'Event Gallery & Reels', path: '/gallery' },
+              { label: 'Honours & Student Voices', path: '/voices' },
+              { label: 'Contact & Admissions', path: '/contact' },
+              { label: 'Admin Portal', path: '/admin' },
             ].map(link => (
-              <div key={link.label} style={{ marginBottom: '14px' }}>
+              <div key={link.label} style={{ marginBottom: '12px' }}>
                 <button
-                  onClick={() => {
-                    if (link.href.startsWith('/')) {
-                      window.location.href = link.href;
-                    } else {
-                      document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' })
-                    }
-                  }}
+                  type="button"
+                  onClick={(e) => handleNav(link.path, e)}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     fontFamily: "var(--font-body)", fontWeight: 500,
-                    fontSize: '14.5px', color: 'var(--text-secondary)',
-                    transition: 'color 0.3s ease, transform 0.3s ease',
+                    fontSize: '14px', color: 'var(--text-secondary)',
+                    transition: 'color 0.25s ease, transform 0.25s ease',
                     padding: 0,
                   }}
                   onMouseEnter={e => {
@@ -151,7 +178,7 @@ export default function Footer() {
         {/* Divider & Shloka Bar */}
         <div style={{
           borderTop: '1px solid rgba(212, 175, 101, 0.2)',
-          paddingTop: '28px',
+          paddingTop: '24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',

@@ -1,7 +1,47 @@
 import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { GraduationCap, Briefcase, Sparkles, BookOpen } from 'lucide-react'
+import { GraduationCap, Briefcase, Sparkles, BookOpen, Award } from 'lucide-react'
 import founderImage from '../assets/jayashree_srinivasann_5d04a935902545048f734fdb8f3b06ab.jpg'
+
+// Verified Founder Artistic Milestones & Productions from Client Document
+const founderArtisticJourney = [
+  {
+    year: '1992',
+    title: 'Arangetram Debut',
+    desc: 'Trained under revered Guru Smt. Ambika Buch, marking the formal initiation and solo debut into classical Bharatanatyam.',
+    badge: 'Solo Debut',
+  },
+  {
+    year: '2001–2004',
+    title: 'Kalakshetra Troupe & Major Classical Roles',
+    desc: 'Awarded Diploma and Post Diploma with First Class from Kalakshetra College of Fine Arts. Performed with the Kalakshetra troupe across India and internationally, portraying leading roles including Sita in Ramayanam, Andal in Andal Charitram, Parvathi in Kumara Sambhavam, and Akka Mahadevi.',
+    badge: 'Kalakshetra Repertoire',
+  },
+  {
+    year: 'Productions',
+    title: 'Acclaimed Thematic Choreographies',
+    desc: 'Conceived, choreographed, and staged celebrated thematic productions celebrating cultural heritage, womanhood, and sacred texts, including Women – from Earthenware to Software, Sthree – Women Through the Ages, Kuttrala Kuravanji, Vaggeya Bharatam, Upanisad Bharatam, SHE, Krishna Bharatam, Festivals of Tamil Nadu, and Suchinthai Maalai.',
+    badge: 'Original Choreography',
+  },
+  {
+    year: '2019 & 2024',
+    title: 'Cleveland Aradhana Festival, USA',
+    desc: 'Invited performances at the world-renowned Cleveland Thyagaraja Festival in the United States, representing authentic classical Bharatanatyam on the prestigious international concert stage.',
+    badge: 'International Concert',
+  },
+  {
+    year: 'Jan 16, 2025',
+    title: 'Panniru Thingalum Pazhindridu Vizhakkalum',
+    desc: 'Major thematic production choreographed and staged for Nada Sudha Trust, celebrating the sacred cycle of traditional temple festivals across the twelve Tamil months.',
+    badge: 'Nada Sudha Trust',
+  },
+  {
+    year: '2025–2026',
+    title: 'Vani Kala Nipuna Conferred',
+    desc: 'Prestigious title conferred for Bharatanatyam by Sri Thyaga Brahma Gana Sabha, honouring decades of unwavering performance, scholarly research, and dedicated teaching.',
+    badge: 'Prestigious Title',
+  },
+]
 
 // Verified Educational Qualifications from Client Document (Phase 3)
 const qualifications = [
@@ -167,7 +207,7 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 }
 
 export default function FounderSection() {
-  const [activeTab, setActiveTab] = useState<'qualifications' | 'experience' | 'skills' | 'research'>('qualifications')
+  const [activeTab, setActiveTab] = useState<'milestones' | 'qualifications' | 'experience' | 'skills' | 'research'>('milestones')
 
   return (
     <section
@@ -299,7 +339,7 @@ export default function FounderSection() {
                   marginBottom: '20px',
                 }}
               >
-                Director, Chathur Lakshana Academy of Fine Arts, Chennai
+                Founder-Director, Chathur Lakshana Academy of Fine Arts, Chennai
               </div>
               <div
                 style={{
@@ -358,7 +398,7 @@ export default function FounderSection() {
           </FadeIn>
         </div>
 
-        {/* Interactive Tabbed Detail Section (Qualifications, Experience, Skills, Publications) */}
+        {/* Detailed Tabs: Artistic Journey & Arangetram, Qualifications, Roles, Skills, Publications */}
         <FadeIn delay={0.2}>
           <div
             style={{
@@ -383,6 +423,7 @@ export default function FounderSection() {
               }}
             >
               {[
+                { id: 'milestones', label: 'Arangetram & Artistic Milestones', icon: Award },
                 { id: 'qualifications', label: 'Qualifications', icon: GraduationCap },
                 { id: 'experience', label: 'Academic & Professional Roles', icon: Briefcase },
                 { id: 'skills', label: 'Artistic Versatility', icon: Sparkles },
@@ -420,6 +461,56 @@ export default function FounderSection() {
                 )
               })}
             </div>
+
+            {/* TAB CONTENT: Founder Arangetram & Artistic Milestones (Change 2) */}
+            {activeTab === 'milestones' && (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '11px', letterSpacing: '0.22em', color: 'var(--accent-gold)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    ✧ SMT. DR. RADHIKA VAIRAVELAVAN ✧
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3.5vw, 32px)', color: 'var(--text-primary)', margin: 0, fontWeight: 400 }}>
+                    Personal Artistic Journey &amp; Milestones
+                  </h3>
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>
+                    From her 1992 Arangetram debut to Kalakshetra troupe leadership and international performances.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                  {founderArtisticJourney.map((m) => (
+                    <div
+                      key={m.title + m.year}
+                      style={{
+                        backgroundColor: '#301326',
+                        border: '1px solid rgba(212, 175, 101, 0.32)',
+                        borderRadius: '2px',
+                        padding: '26px 24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.35)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px' }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontSize: '22px', fontWeight: 600, color: 'var(--accent-gold)' }}>
+                          {m.year}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--accent-gold-light)', background: 'rgba(212, 175, 101, 0.12)', padding: '3px 8px', borderRadius: '2px', textTransform: 'uppercase' }}>
+                          {m.badge}
+                        </span>
+                      </div>
+                      <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: 'var(--text-primary)', margin: '0 0 10px', fontWeight: 500, lineHeight: 1.3 }}>
+                        {m.title}
+                      </h4>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.65, marginTop: 'auto' }}>
+                        {m.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* TAB CONTENT: Educational Qualifications */}
             {activeTab === 'qualifications' && (
